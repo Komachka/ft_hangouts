@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ft_hangouts</string>
+    <string name="title_activity_main_ft">MainFTActivity</string>
+
+
+    <!-- menu-->
+    <string name="add_item">Add new contact</string>
+    <string name="dell_all">Delete all contacts</string>
+    <string name="title_activity_edit">EditActivity</string>
+    <string name="safe">Safe</string>
+</resources>
