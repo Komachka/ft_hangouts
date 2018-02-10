@@ -39,15 +39,15 @@ public class MainFTActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainFTActivity.this, EditActivity.class);
                 startActivity(intent);
-
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
+        mDbHelper = new ContactDBHealper(this);
         displayDatabaseInfo();
     }
 
-    private void displayDatabaseInfo() {
+    /*private void displayDatabaseInfo() {
         // To access our database, we instantiate our subclass of SQLiteOpenHelper
         // and pass the context, which is the current activity.
         Log.v(MainFTActivity.class.toString(), "display info");
@@ -105,23 +105,66 @@ public class MainFTActivity extends AppCompatActivity {
             cursor.close();
         }
         displayView.setText(stringBuilder);
+    }*/
+
+
+    private void displayDatabaseInfo() {
+        // To access our database, we instantiate our subclass of SQLiteOpenHelper
+        // and pass the context, which is the current activity.
+        Log.v(MainFTActivity.class.toString(), "display info");
+
+        String[] projection = {
+                ContactContract.ContactEntry._ID,
+                ContactContract.ContactEntry.FIRST_NAME,
+                ContactContract.ContactEntry.SECOND_NAME,
+                ContactContract.ContactEntry.TELEPHONE_NUMBER};
+        String selection  = null;
+        String []selectionArgs = null;
+
+
+//        Cursor cursor = db.query(
+//                ContactContract.ContactEntry.TABLE_NAME,
+//                projection,
+//                selection,
+//                selectionArgs,
+//                null,
+//                null,
+//                null);
+//        //cursor.moveToFirst();
+
+        Cursor cursor  = getContentResolver().query(ContactContract.ContactEntry.CONTENT_URI, projection, null, null, null, null);
+        int columIndexId = cursor.getColumnIndex(ContactContract.ContactEntry._ID);
+        int coloumIndexFN = cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME);
+        int coloumIndexSN = cursor.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME);
+        int coloumIndexT = cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER);
+
+        TextView displayView = (TextView) findViewById(R.id.tv_sql);
+        StringBuilder stringBuilder = new StringBuilder("Number of rows in pets database table: " + cursor.getCount() + "\n");
+
+
+
+
+        try {
+
+            while (cursor.moveToNext())
+            {
+                int currentID = cursor.getInt(columIndexId);
+                stringBuilder.append(cursor.getInt(columIndexId) + " " + cursor.getString(coloumIndexFN) + " " + cursor.getString(coloumIndexSN) + " " + cursor.getString(coloumIndexT) + "\n");
+            }
+
+
+
+
+            // Display the number of rows in the Cursor (which reflects the number of rows in the
+            // pets table in the database).
+
+        } finally {
+            // Always close the cursor when you're done reading from it. This releases all its
+            // resources and makes it invalid.
+            cursor.close();
+        }
+        displayView.setText(stringBuilder);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private boolean insertContact()
     {
 

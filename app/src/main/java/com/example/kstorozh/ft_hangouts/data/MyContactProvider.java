@@ -1,8 +1,11 @@
 package com.example.kstorozh.ft_hangouts.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,7 +16,18 @@ import android.support.annotation.Nullable;
 
 public class MyContactProvider  extends ContentProvider {
 
+    /** Database helper object */
     private ContactDBHealper contactDBHealper;
+    public static final String LOG_TAG = MyContactProvider.class.getSimpleName();
+
+    private static final int ALL_CONTACTS = 100;
+    private static final int CONTACT_ID = 101;
+
+    private static final UriMatcher sUriMAtcher = new UriMatcher(UriMatcher.NO_MATCH);
+    static {
+        sUriMAtcher.addURI(ContactContract.CONTENT_AUTHORITY, ContactContract.PATH_CONTACTS, ALL_CONTACTS);
+        sUriMAtcher.addURI(ContactContract.CONTENT_AUTHORITY, ContactContract.PATH_CONTACTS + "/#", CONTACT_ID);
+    }
 
     @Override
     public boolean onCreate() {
@@ -24,8 +38,29 @@ public class MyContactProvider  extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
-        return null;
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+
+        SQLiteDatabase db = contactDBHealper.getReadableDatabase();
+
+        Cursor cursor;
+
+        int match = sUriMAtcher.match(uri);
+        switch (match) {
+            case ALL_CONTACTS:
+                //
+                cursor = db.query(ContactContract.ContactEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case CONTACT_ID:
+                //For one contact
+                selection = ContactContract.ContactEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor = db.query(ContactContract.ContactEntry.TABLE_NAME, projection, selection, selectionArgs, null,null,sortOrder);
+                break;
+            default:
+                throw  new IllegalArgumentException("Cannot query unknown URI " + uri);
+                
+        }
+        return cursor;
     }
 
     @Nullable
