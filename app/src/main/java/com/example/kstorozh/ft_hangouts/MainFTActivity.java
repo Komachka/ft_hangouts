@@ -2,6 +2,7 @@ package com.example.kstorozh.ft_hangouts;
 
 
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -169,7 +170,7 @@ public class MainFTActivity extends AppCompatActivity {
     {
 
         // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
 
 // Create a new map of values, where column names are the keys
         String first_name = "Katya";
@@ -182,14 +183,7 @@ public class MainFTActivity extends AppCompatActivity {
         values.put(ContactContract.ContactEntry.TELEPHONE_NUMBER, telephone_number);
         values.put(ContactContract.ContactEntry.ICON_PATH, "");
 
-// Insert the new row, returning the primary key value of the new row
-        long newRowId;
-        newRowId = db.insert(
-                ContactContract.ContactEntry.TABLE_NAME,
-                null,
-                values);
-
-        Log.v(MainFTActivity.class.toString(), "New row id = " + newRowId);
+        getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
         return true;
     }
 

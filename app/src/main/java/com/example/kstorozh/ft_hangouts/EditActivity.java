@@ -3,6 +3,7 @@ package com.example.kstorozh.ft_hangouts;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -49,7 +50,7 @@ public class EditActivity extends AppCompatActivity {
 
         // Gets the data repository in write mode
         ContactDBHealper mDbHelper = new ContactDBHealper(this);
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
 
 // Create a new map of values, where column names are the keys
         String first_name = edit_first_name.getText().toString().trim();
@@ -71,22 +72,16 @@ public class EditActivity extends AppCompatActivity {
         values.put(ContactContract.ContactEntry.ICON_PATH, "");
 
 // Insert the new row, returning the primary key value of the new row
-        long newRowId;
-        newRowId = db.insert(
-                ContactContract.ContactEntry.TABLE_NAME,
-                null,
-                values);
+        Uri uri =  getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
 
-        Log.v(MainFTActivity.class.toString(), "New row id = " + newRowId);
 
-        if (newRowId == -1) {
+        if (uri == null) {
             // If the row ID is -1, then there was an error with insertion.
             Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
         } else {
             // Otherwise, the insertion was successful and we can display a toast with the row ID.
-            Toast.makeText(this, "Pet saved with row id: " + newRowId, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Pet saved with row id: " + uri, Toast.LENGTH_SHORT).show();
         }
-
 
         return true;
     }

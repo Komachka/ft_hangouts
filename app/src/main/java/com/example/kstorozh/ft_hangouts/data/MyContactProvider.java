@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by kstorozh on 11/30/17.
@@ -72,7 +73,28 @@ public class MyContactProvider  extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-        return null;
+        int match = sUriMAtcher.match(uri);
+        switch (match)
+        {
+            case ALL_CONTACTS:
+                return insertNewContact(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
+
+
+    }
+
+    private Uri insertNewContact(Uri uri, ContentValues contentValues) {
+
+        SQLiteDatabase db = contactDBHealper.getWritableDatabase();
+        long id = db.insert(ContactContract.ContactEntry.TABLE_NAME, null, contentValues);
+        if (id == -1) {
+            Log.e(LOG_TAG, "Falled to insert row for " + uri);
+            return null;
+        }
+        Log.v(LOG_TAG, "New row id = " + id);
+        return ContentUris.withAppendedId(uri, id);
     }
 
     @Override
