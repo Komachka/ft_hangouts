@@ -36,7 +36,7 @@ public class MyContactProvider  extends ContentProvider {
     @Override
     public boolean onCreate() {
 
-        Log.i(LOG_TAG, "logs");
+        Log.i(LOG_TAG, "Content provider is created");
         contactDBHealper = new ContactDBHealper(getContext());
         return true;
     }
@@ -71,7 +71,17 @@ public class MyContactProvider  extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        return null;
+
+        int match  = sUriMAtcher.match(uri);
+        switch (match)
+        {
+            case ALL_CONTACTS:
+                return ContactContract.ContactEntry.CONTENT_LIST_TYPE;
+            case CONTACT_ID:
+                return ContactContract.ContactEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new IllegalStateException("Unknown URI " + uri + "with match " + match);
+        }
     }
 
     @Nullable
@@ -140,8 +150,21 @@ public class MyContactProvider  extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+
+        SQLiteDatabase db = contactDBHealper.getWritableDatabase();
+        int maych = sUriMAtcher.match(uri);
+        switch (maych)
+        {
+            case ALL_CONTACTS:
+                return db.delete(ContactContract.ContactEntry.TABLE_NAME, selection, selectionArgs);
+            case CONTACT_ID:
+                selection = ContactContract.ContactEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return db.delete(ContactContract.ContactEntry.TABLE_NAME, selection, selectionArgs);
+                default:
+                    throw new IllegalArgumentException("Deletion is not supported for " + uri);
+        }
     }
 
     @Override
@@ -150,12 +173,37 @@ public class MyContactProvider  extends ContentProvider {
         switch (match) {
             case ALL_CONTACTS:
                 return updateContact(uri, contentValues, selection, selectionArgs);
-                break;
             case CONTACT_ID:
                 selection = ContactContract.ContactEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return update
+                return updateContact(uri, contentValues, selection, selectionArgs);
+            default:
+               throw new IllegalArgumentException("Update is not supported for " + uri);
         }
+    }
+
+    private int updateContact(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+        boolean validData = true;
+        if (contentValues.size() == 0) {
+            return 0;
+        }
+        if (contentValues.containsKey(ContactContract.ContactEntry.FIRST_NAME)) {
+            String name = contentValues.getAsString(ContactContract.ContactEntry.FIRST_NAME);
+            if (name == null) {
+                validData = false;
+            }
+        }
+        if (contentValues.containsKey(ContactContract.ContactEntry.SECOND_NAME)) {
+            String name = contentValues.getAsString(ContactContract.ContactEntry.SECOND_NAME);
+            if (name == null) {
+                validData = false;
+            }
+        }
+        if (validData) {
+            SQLiteDatabase database = contactDBHealper.getWritableDatabase();
+            return database.update(ContactContract.ContactEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+        }
+
         return 0;
     }
 }

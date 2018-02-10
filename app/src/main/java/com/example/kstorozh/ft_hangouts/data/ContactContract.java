@@ -1,5 +1,6 @@
 package com.example.kstorozh.ft_hangouts.data;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -32,6 +33,19 @@ public class ContactContract {
         public static final String SECOND_NAME = "second_name";
         public static final String TELEPHONE_NUMBER  = "telephone_number";
         public static final String ICON_PATH = "icon_path";
+
+        /**
+         * The MIME type of the {@link #CONTENT_URI} for a list of pets.
+         */
+        public static final String CONTENT_LIST_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_CONTACTS;
+
+        /**
+         * The MIME type of the {@link #CONTENT_URI} for a single pet.
+         */
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_CONTACTS;
+
 
 
     }
