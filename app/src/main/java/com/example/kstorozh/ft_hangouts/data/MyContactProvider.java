@@ -11,6 +11,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Created by kstorozh on 11/30/17.
  */
@@ -33,6 +36,7 @@ public class MyContactProvider  extends ContentProvider {
     @Override
     public boolean onCreate() {
 
+        Log.i(LOG_TAG, "logs");
         contactDBHealper = new ContactDBHealper(getContext());
         return true;
     }
@@ -85,16 +89,54 @@ public class MyContactProvider  extends ContentProvider {
 
     }
 
-    private Uri insertNewContact(Uri uri, ContentValues contentValues) {
+    private Uri insertNewContact(Uri uri, ContentValues contentValues)  {
 
-        SQLiteDatabase db = contactDBHealper.getWritableDatabase();
-        long id = db.insert(ContactContract.ContactEntry.TABLE_NAME, null, contentValues);
-        if (id == -1) {
-            Log.e(LOG_TAG, "Falled to insert row for " + uri);
-            return null;
+        boolean validData = true;
+        String name = contentValues.getAsString(ContactContract.ContactEntry.FIRST_NAME);
+        if (name == null) {
+            validData = false;
+            Log.e(LOG_TAG, "First name is incorect");
+            //throw new IllegalArgumentException("Contact requires a First name");
         }
-        Log.v(LOG_TAG, "New row id = " + id);
-        return ContentUris.withAppendedId(uri, id);
+        name = contentValues.getAsString(ContactContract.ContactEntry.SECOND_NAME);
+        if (name == null) {
+            validData = false;
+            Log.e(LOG_TAG, "Second name is incorect");
+            //throw new RuntimeException("Contact requires a Second name");
+        }
+        String number = contentValues.getAsString(ContactContract.ContactEntry.TELEPHONE_NUMBER);
+        Log.e(LOG_TAG, "Telefon valid = " + String.valueOf(isTelephonValid(number)));
+        if (number == null)
+            validData = false;
+        if (!isTelephonValid(number))
+            validData = false;
+        Log.e(LOG_TAG, "Data valid = " + String.valueOf(validData));
+        if (validData) {
+            SQLiteDatabase db = contactDBHealper.getWritableDatabase();
+            long id = db.insert(ContactContract.ContactEntry.TABLE_NAME, null, contentValues);
+            if (id == -1) {
+
+                Log.e(LOG_TAG, "Falled to insert row for " + uri);
+                return null;
+            }
+            Log.v(LOG_TAG, "New row id = " + id);
+            return ContentUris.withAppendedId(uri, id);
+        }
+        return null;
+    }
+
+    public static boolean isTelephonValid(String number)
+    {
+        String regexex  = "380[0-9]{9}";
+        Pattern pattern = Pattern.compile(regexex);
+        Matcher matcher = pattern.matcher(number);
+        if (matcher.matches())
+        {
+            Log.i(LOG_TAG, "number " + number + " is valid");
+            return true;
+        }
+        Log.e(LOG_TAG, "number " + number + " is invalid");
+        return false;
     }
 
     @Override
@@ -103,7 +145,17 @@ public class MyContactProvider  extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
+    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection, @Nullable String[] selectionArgs) {
+        int match = sUriMAtcher.match(uri);
+        switch (match) {
+            case ALL_CONTACTS:
+                return updateContact(uri, contentValues, selection, selectionArgs);
+                break;
+            case CONTACT_ID:
+                selection = ContactContract.ContactEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return update
+        }
         return 0;
     }
 }

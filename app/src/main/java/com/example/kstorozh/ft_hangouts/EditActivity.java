@@ -55,15 +55,7 @@ public class EditActivity extends AppCompatActivity {
 // Create a new map of values, where column names are the keys
         String first_name = edit_first_name.getText().toString().trim();
         String second_name = edit_second_name.getText().toString().trim();
-        int telephone_number;
-        try {
-            telephone_number = Integer.parseInt(edit_telephone_number.getText().toString().trim());
-        }
-        catch (Exception e)
-        {
-            telephone_number = 0; // need to figure how to change it
-        }
-
+        String telephone_number = edit_telephone_number.getText().toString().trim();
 
         ContentValues values = new ContentValues();
         values.put(ContactContract.ContactEntry.FIRST_NAME, first_name);
