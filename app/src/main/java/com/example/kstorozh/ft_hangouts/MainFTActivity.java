@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 
@@ -26,6 +28,8 @@ import com.example.kstorozh.ft_hangouts.data.ContactContract;
 public class MainFTActivity extends AppCompatActivity {
 
     private ContactDBHealper mDbHelper;
+    private ListView myListView;  // the ListActivity's ListView
+    public SimpleCursorAdapter myAdapter; // adapter for ListView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,65 +52,6 @@ public class MainFTActivity extends AppCompatActivity {
         displayDatabaseInfo();
     }
 
-    /*private void displayDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-        Log.v(MainFTActivity.class.toString(), "display info");
-        mDbHelper = new ContactDBHealper(this);
-
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-
-
-         String[] projection = {ContactContract.ContactEntry._ID, ContactContract.ContactEntry.FIRST_NAME, ContactContract.ContactEntry.SECOND_NAME, ContactContract.ContactEntry.TELEPHONE_NUMBER};
-         //String[] projection = null;
-         //String selection  = ContactContract.ContactEntry._ID + "=?";
-         String selection  = null;
-         //String []selectionArgs = new String[]{"1"};
-         String []selectionArgs = null;
-
-
-        // Perform this raw SQL query "SELECT * FROM pets"
-        // to get a Cursor that contains all rows from the pets table.
-        // cursor = db.rawQuery("SELECT * FROM " + ContactContract.ContactEntry.TABLE_NAME, null);
-
-
-        Cursor cursor = db.query(ContactContract.ContactEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
-        //cursor.moveToFirst();
-
-        int columIndexId = cursor.getColumnIndex(ContactContract.ContactEntry._ID);
-        int coloumIndexFN = cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME);
-        int coloumIndexSN = cursor.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME);
-        int coloumIndexT = cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER);
-
-        TextView displayView = (TextView) findViewById(R.id.tv_sql);
-        StringBuilder stringBuilder = new StringBuilder("Number of rows in pets database table: " + cursor.getCount() + "\n");
-
-
-
-
-        try {
-
-         while (cursor.moveToNext())
-         {
-             int currentID = cursor.getInt(columIndexId);
-             stringBuilder.append(cursor.getInt(columIndexId) + " " + cursor.getString(coloumIndexFN) + " " + cursor.getString(coloumIndexSN) + " " + cursor.getString(coloumIndexT) + "\n");
-         }
-
-
-
-
-            // Display the number of rows in the Cursor (which reflects the number of rows in the
-            // pets table in the database).
-
-        } finally {
-            // Always close the cursor when you're done reading from it. This releases all its
-            // resources and makes it invalid.
-            cursor.close();
-        }
-        displayView.setText(stringBuilder);
-    }*/
 
 
     private void displayDatabaseInfo() {
@@ -134,10 +79,45 @@ public class MainFTActivity extends AppCompatActivity {
 //        //cursor.moveToFirst();
 
         Cursor cursor  = getContentResolver().query(ContactContract.ContactEntry.CONTENT_URI, projection, null, null, null, null);
+
+
+
+        String [] headers = new  String[] {ContactContract.ContactEntry.FIRST_NAME, ContactContract.ContactEntry.TELEPHONE_NUMBER};
+        int [] to = new int[] {R.id.first_name, R.id.icon ,R.id.telephone};
+
+        Log.d("MyContactProvider", "Cursor count is" + String.valueOf(cursor.getCount()));
+        myAdapter = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, cursor, headers, new int[] {android.R.id.text1, android.R.id.text2}, SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+        /*esodaAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue (View view, Cursor cursor, int columnIndex){
+                if (view.getId() == R.id.imageView1) {
+                    ImageView IV=(ImageView) view;
+                    int resID = getApplicationContext().getResources().getIdentifier(cursor.getString(columnIndex), "drawable",  getApplicationContext().getPackageName());
+                    IV.setImageDrawable(getApplicationContext().getResources().getDrawable(resID));
+                    return true;
+                }
+                return false;
+            }
+
+       */
+
+
+
+        Log.d("MyContactProvider", "Adapter created");
+
+        myListView = (ListView) findViewById(R.id.mylist);
+        myListView.
+
+
         int columIndexId = cursor.getColumnIndex(ContactContract.ContactEntry._ID);
         int coloumIndexFN = cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME);
         int coloumIndexSN = cursor.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME);
         int coloumIndexT = cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER);
+
+
+
+
 
         TextView displayView = (TextView) findViewById(R.id.tv_sql);
         StringBuilder stringBuilder = new StringBuilder("Number of rows in pets database table: " + cursor.getCount() + "\n");
@@ -164,7 +144,7 @@ public class MainFTActivity extends AppCompatActivity {
             // resources and makes it invalid.
             cursor.close();
         }
-        displayView.setText(stringBuilder);
+        //displayView.setText(stringBuilder);
     }
     private boolean insertContact()
     {

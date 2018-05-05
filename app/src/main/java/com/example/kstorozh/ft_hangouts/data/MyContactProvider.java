@@ -137,7 +137,7 @@ public class MyContactProvider  extends ContentProvider {
 
     public static boolean isTelephonValid(String number)
     {
-        String regexex  = "380[0-9]{9}";
+        String regexex  = "[0-9]+";
         Pattern pattern = Pattern.compile(regexex);
         Matcher matcher = pattern.matcher(number);
         if (matcher.matches())
