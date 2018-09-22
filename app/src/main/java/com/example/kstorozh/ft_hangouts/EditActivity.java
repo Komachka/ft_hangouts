@@ -1,6 +1,9 @@
 package com.example.kstorozh.ft_hangouts;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -21,11 +24,12 @@ import com.example.kstorozh.ft_hangouts.data.ContactDBHealper;
 
 import java.text.ParseException;
 
-public class EditActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private EditText edit_first_name;
     private EditText edit_second_name;
     private EditText edit_telephone_number;
+    Uri currentContactUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +37,34 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        setSupportActionBar(toolbar);
         edit_first_name = (EditText)findViewById(R.id.edit_first_name);
         edit_second_name = (EditText)findViewById(R.id.edit_second_name);
         edit_telephone_number = (EditText)findViewById(R.id.edit_telephon_number);
 
+        currentContactUri = getIntent().getData();
+        if (currentContactUri != null)
+        {
+            getSupportActionBar().setTitle("Edit pet");
+            //toolbar.setTitle("Edit pet");
+
+            String[] projection = {
+                    ContactContract.ContactEntry._ID,
+                    ContactContract.ContactEntry.FIRST_NAME,
+                    ContactContract.ContactEntry.SECOND_NAME,
+                    ContactContract.ContactEntry.TELEPHONE_NUMBER};
+            String selection  = null;
+            String []selectionArgs = null;
+
+            Toast.makeText(this,"Edit pet " + currentContactUri.toString(),Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            getSupportActionBar().setTitle("Add new pet");
+
+        }
+        getLoaderManager().initLoader(0,null,this);
 
 //
 
@@ -108,4 +136,49 @@ public class EditActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String[] projection = {
+                ContactContract.ContactEntry._ID,
+                ContactContract.ContactEntry.FIRST_NAME,
+                ContactContract.ContactEntry.SECOND_NAME,
+                ContactContract.ContactEntry.TELEPHONE_NUMBER};
+        String selection  = null;
+        String []selectionArgs = null;
+
+        if (currentContactUri != null)
+            return new CursorLoader(getApplicationContext(), currentContactUri, projection,selection,selectionArgs,null);
+        else
+            return null;
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        if (data != null && data.moveToNext()) {
+            Toast.makeText(this, "data.getCount() " + data.getCount(), Toast.LENGTH_LONG).show();
+            //String pathToIcon = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
+            String fName = data.getString(data.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
+            String sName = data.getString(data.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME));
+            String tel = data.getString(data.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER));
+
+            //icon.setImageResource();
+            edit_first_name.setText(fName);
+            edit_second_name.setText(sName);
+            edit_telephone_number.setText(tel);
+
+        }
+        else
+            Toast.makeText(this, "data.getCount() 0", Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        edit_first_name.setText("");
+        edit_second_name.setText("");
+        edit_telephone_number.setText("");
+
+    }
 }

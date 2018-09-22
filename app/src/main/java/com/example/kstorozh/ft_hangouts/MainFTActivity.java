@@ -57,12 +57,9 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
         myListView = (ListView) findViewById(R.id.myList);
         // добавляем контекстное меню к списку
-        registerForContextMenu(myListView);
 
         View emptyView = findViewById(R.id.empty_view);
         myListView.setEmptyView(emptyView);
-
-
 
         contactsCursoreAdapter = new ContactsCursoreAdapter(this, null);
         myListView.setAdapter(contactsCursoreAdapter);
@@ -70,6 +67,17 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         getLoaderManager().initLoader(0,null,this);
 
 
+        myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainFTActivity.this, EditActivity.class);
+                Uri uri = Uri.withAppendedPath(ContactContract.ContactEntry.CONTENT_URI,String.valueOf(id));
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        });
+
+        registerForContextMenu(myListView);
 
     }
 
@@ -135,16 +143,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     }
 
 
-
-
-   /* @Override
-    protected void onStart() {
-        super.onStart();
-        displayDataBaseInfoInList();
-    }*/
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -162,12 +160,10 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         {
             case R.id.action_insert_data:
                 insertContact();
-                //displayDataBaseInfoInList();
                 return true;
             case R.id.action_delete_all_data:
                 int howMuchWasRemuved = getContentResolver().delete(ContactContract.ContactEntry.CONTENT_URI,null,null);
                 Toast.makeText(getApplicationContext(), "howMuchWasRemuved " + howMuchWasRemuved, Toast.LENGTH_LONG).show();
-                //displayDataBaseInfoInList();
                 return true;
         }
 
@@ -199,17 +195,11 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
             int howMuchwasDelited  = getContentResolver().delete(delUri, null, null);
             Toast.makeText(getApplicationContext(), "how much was delited " + howMuchwasDelited, Toast.LENGTH_LONG).show();
-            //displayDataBaseInfoInList();
             return true;
         }
         return super.onContextItemSelected(item);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //db.close();
-    }
 
 
     //methods for work with cursor loader in background
