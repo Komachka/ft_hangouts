@@ -7,9 +7,10 @@
     <string name="add_item">Add new contact</string>
     <string name="dell_all">Delete all contacts</string>
     <string name="title_activity_edit">EditActivity</string>
-    <string name="safe">Safe</string>
+    <string name="save">Save</string>
     <string name="add_record">Добавить запись</string>
     <string name="delete_record">Удалить запись</string>
     <string name="empty_view_title_text">\"It is a bit lonley here\"</string>
     <string name="empty_view_subtitle_text">\"Start to add someone new\"</string>
+    <string name="preference_file_key">com.example.kstorozh.ft_hangouts.PREFERENCE_FILE_KEY</string>
 </resources>

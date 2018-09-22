@@ -83,44 +83,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
 
 
-
-    private void displayDataBaseInfoInList()
-    {
-        String[] projection = {
-                ContactContract.ContactEntry._ID,
-                ContactContract.ContactEntry.FIRST_NAME,
-                ContactContract.ContactEntry.SECOND_NAME,
-                ContactContract.ContactEntry.TELEPHONE_NUMBER};
-        String selection  = null;
-        String []selectionArgs = null;
-
-        Cursor cursor  = getContentResolver().query(ContactContract.ContactEntry.CONTENT_URI, projection, null, null, null, null);
-
-
-
-        //String [] headers = new  String[] {ContactContract.ContactEntry.FIRST_NAME, ContactContract.ContactEntry.TELEPHONE_NUMBER};
-        //int [] to = new int[] {R.id.tvText1, R.id.tvText2};
-
-        Log.d("MyContactProvider", "Cursor count is" + String.valueOf(cursor.getCount()));
-
-
-        contactsCursoreAdapter = new ContactsCursoreAdapter(this, cursor);
-        //myAdapter = new SimpleCursorAdapter(this, R.layout.item, cursor, headers, to);
-
-        Log.d("MyContactProvider", "Adapter created");
-
-        myListView = (ListView) findViewById(R.id.myList);
-        //myListView.setAdapter(myAdapter);
-        myListView.setAdapter(contactsCursoreAdapter);
-        // добавляем контекстное меню к списку
-        registerForContextMenu(myListView);
-
-        View emptyView = findViewById(R.id.empty_view);
-        myListView.setEmptyView(emptyView);
-
-    }
-
-
     private boolean insertContact()
     {
 
@@ -210,7 +172,8 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                 ContactContract.ContactEntry._ID,
                 ContactContract.ContactEntry.FIRST_NAME,
                 ContactContract.ContactEntry.SECOND_NAME,
-                ContactContract.ContactEntry.TELEPHONE_NUMBER};
+                ContactContract.ContactEntry.TELEPHONE_NUMBER,
+                ContactContract.ContactEntry.ICON_PATH};
         String selection  = null;
         String []selectionArgs = null;
 

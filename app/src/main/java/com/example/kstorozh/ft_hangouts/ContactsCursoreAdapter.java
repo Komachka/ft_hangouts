@@ -38,16 +38,16 @@ public class ContactsCursoreAdapter extends CursorAdapter {
         TextView secondName = (TextView) view.findViewById(R.id.tvsecondname);
         TextView telephone = (TextView) view.findViewById(R.id.tvtelephone);
 
-        //String pathToIcon = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
+        String pathToIcon = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
         String fName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
         String sName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME));
         String tel = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER));
 
-        //icon.setImageResource();
+
         firstName.setText(fName);
         secondName.setText(sName);
         telephone.setText(tel);
-
+        icon.setImageBitmap(Helper.bitmapFromPath(context,pathToIcon));
 
     }
 

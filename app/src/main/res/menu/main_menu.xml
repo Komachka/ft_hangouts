@@ -12,8 +12,8 @@
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_safe"
-        android:title="@string/safe"
+        android:id="@+id/action_save"
+        android:title="@string/save"
         app:showAsAction="always"
         android:icon="@mipmap/ic_launcher_round"/>
 
