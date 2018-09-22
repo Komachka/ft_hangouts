@@ -65,6 +65,7 @@ public class MyContactProvider  extends ContentProvider {
                 throw  new IllegalArgumentException("Cannot query unknown URI " + uri);
                 
         }
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -130,6 +131,8 @@ public class MyContactProvider  extends ContentProvider {
                 return null;
             }
             Log.v(LOG_TAG, "New row id = " + id);
+
+            getContext().getContentResolver().notifyChange(uri, null);
             return ContentUris.withAppendedId(uri, id);
         }
         return null;
@@ -154,32 +157,47 @@ public class MyContactProvider  extends ContentProvider {
 
         SQLiteDatabase db = contactDBHealper.getWritableDatabase();
         int maych = sUriMAtcher.match(uri);
+        int rowDelited = 0;
         switch (maych)
         {
             case ALL_CONTACTS:
-                return db.delete(ContactContract.ContactEntry.TABLE_NAME, selection, selectionArgs);
+                rowDelited = db.delete(ContactContract.ContactEntry.TABLE_NAME, selection, selectionArgs);
+                break;
             case CONTACT_ID:
                 selection = ContactContract.ContactEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return db.delete(ContactContract.ContactEntry.TABLE_NAME, selection, selectionArgs);
-                default:
+                rowDelited = db.delete(ContactContract.ContactEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
                     throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
+        if (rowDelited != 0 ) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowDelited;
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection, @Nullable String[] selectionArgs) {
         int match = sUriMAtcher.match(uri);
+        int rowUpdated = 0;
         switch (match) {
             case ALL_CONTACTS:
-                return updateContact(uri, contentValues, selection, selectionArgs);
+                rowUpdated =  updateContact(uri, contentValues, selection, selectionArgs);
+                break;
             case CONTACT_ID:
                 selection = ContactContract.ContactEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return updateContact(uri, contentValues, selection, selectionArgs);
+                rowUpdated =  updateContact(uri, contentValues, selection, selectionArgs);
+                break;
             default:
                throw new IllegalArgumentException("Update is not supported for " + uri);
         }
+        if (rowUpdated != 0)
+        {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowUpdated;
     }
 
     private int updateContact(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {

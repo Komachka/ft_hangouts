@@ -50,4 +50,10 @@ public class ContactsCursoreAdapter extends CursorAdapter {
 
 
     }
+
+
+    @Override
+    public Cursor swapCursor(Cursor newCursor) {
+        return super.swapCursor(newCursor);
+    }
 }
