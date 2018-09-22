@@ -6,19 +6,21 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.kstorozh.ft_hangouts.data.ContactDBHealper;
@@ -27,9 +29,11 @@ import com.example.kstorozh.ft_hangouts.data.ContactContract;
 
 public class MainFTActivity extends AppCompatActivity {
 
-    private ContactDBHealper mDbHelper;
+    private static final int CM_DELETE_ID = 1;
     private ListView myListView;  // the ListActivity's ListView
-    public SimpleCursorAdapter myAdapter; // adapter for ListView
+    public ContactsCursoreAdapter contactsCursoreAdapter;
+
+    Cursor cursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +52,48 @@ public class MainFTActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        mDbHelper = new ContactDBHealper(this);
-        displayDatabaseInfo();
+        displayDataBaseInfoInList();
+
+
+
+        //displayDatabaseInfo();
     }
 
 
+
+
+    private void displayDataBaseInfoInList()
+    {
+        String[] projection = {
+                ContactContract.ContactEntry._ID,
+                ContactContract.ContactEntry.FIRST_NAME,
+                ContactContract.ContactEntry.SECOND_NAME,
+                ContactContract.ContactEntry.TELEPHONE_NUMBER};
+        String selection  = null;
+        String []selectionArgs = null;
+
+        Cursor cursor  = getContentResolver().query(ContactContract.ContactEntry.CONTENT_URI, projection, null, null, null, null);
+
+
+
+        //String [] headers = new  String[] {ContactContract.ContactEntry.FIRST_NAME, ContactContract.ContactEntry.TELEPHONE_NUMBER};
+        //int [] to = new int[] {R.id.tvText1, R.id.tvText2};
+
+        Log.d("MyContactProvider", "Cursor count is" + String.valueOf(cursor.getCount()));
+
+
+        contactsCursoreAdapter = new ContactsCursoreAdapter(this, cursor);
+        //myAdapter = new SimpleCursorAdapter(this, R.layout.item, cursor, headers, to);
+
+        Log.d("MyContactProvider", "Adapter created");
+
+        myListView = (ListView) findViewById(R.id.myList);
+        //myListView.setAdapter(myAdapter);
+        myListView.setAdapter(contactsCursoreAdapter);
+        // добавляем контекстное меню к списку
+        registerForContextMenu(myListView);
+
+    }
 
     private void displayDatabaseInfo() {
         // To access our database, we instantiate our subclass of SQLiteOpenHelper
@@ -68,47 +109,30 @@ public class MainFTActivity extends AppCompatActivity {
         String []selectionArgs = null;
 
 
-//        Cursor cursor = db.query(
-//                ContactContract.ContactEntry.TABLE_NAME,
-//                projection,
-//                selection,
-//                selectionArgs,
-//                null,
-//                null,
-//                null);
-//        //cursor.moveToFirst();
-
-        Cursor cursor  = getContentResolver().query(ContactContract.ContactEntry.CONTENT_URI, projection, null, null, null, null);
+        cursor  = getContentResolver().query(ContactContract.ContactEntry.CONTENT_URI, projection, null, null, null, null);
 
 
 
-        String [] headers = new  String[] {ContactContract.ContactEntry.FIRST_NAME, ContactContract.ContactEntry.TELEPHONE_NUMBER};
-        int [] to = new int[] {R.id.first_name, R.id.icon ,R.id.telephone};
+
+
+
+
+        //String [] headers = new  String[] {ContactContract.ContactEntry.FIRST_NAME, ContactContract.ContactEntry.TELEPHONE_NUMBER};
+        //int [] to = new int[] {R.id.tvText1, R.id.tvText2};
 
         Log.d("MyContactProvider", "Cursor count is" + String.valueOf(cursor.getCount()));
-        myAdapter = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, cursor, headers, new int[] {android.R.id.text1, android.R.id.text2}, SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        //myAdapter = new SimpleCursorAdapter(this, R.layout.item, cursor, headers, to);
 
-        /*esodaAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue (View view, Cursor cursor, int columnIndex){
-                if (view.getId() == R.id.imageView1) {
-                    ImageView IV=(ImageView) view;
-                    int resID = getApplicationContext().getResources().getIdentifier(cursor.getString(columnIndex), "drawable",  getApplicationContext().getPackageName());
-                    IV.setImageDrawable(getApplicationContext().getResources().getDrawable(resID));
-                    return true;
-                }
-                return false;
-            }
 
-       */
+
 
 
 
         Log.d("MyContactProvider", "Adapter created");
 
-        myListView = (ListView) findViewById(R.id.mylist);
-        myListView.
-
+        //myListView = (ListView) findViewById(R.id.myList);
+        //myListView.setAdapter(myAdapter);
+        //Toast.makeText(getApplication(), "Adapter seted", Toast.LENGTH_LONG).show();
 
         int columIndexId = cursor.getColumnIndex(ContactContract.ContactEntry._ID);
         int coloumIndexFN = cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME);
@@ -119,20 +143,21 @@ public class MainFTActivity extends AppCompatActivity {
 
 
 
-        TextView displayView = (TextView) findViewById(R.id.tv_sql);
-        StringBuilder stringBuilder = new StringBuilder("Number of rows in pets database table: " + cursor.getCount() + "\n");
+       // TextView displayView = (TextView) findViewById(R.id.tv_sql);
+       // StringBuilder stringBuilder = new StringBuilder("Number of rows in pets database table: " + cursor.getCount() + "\n");
 
 
 
 
         try {
 
-            while (cursor.moveToNext())
+            /*while (cursor.moveToNext())
             {
                 int currentID = cursor.getInt(columIndexId);
                 stringBuilder.append(cursor.getInt(columIndexId) + " " + cursor.getString(coloumIndexFN) + " " + cursor.getString(coloumIndexSN) + " " + cursor.getString(coloumIndexT) + "\n");
             }
-
+            displayView.setText(stringBuilder);
+*/
 
 
 
@@ -173,7 +198,7 @@ public class MainFTActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        displayDatabaseInfo();
+        displayDataBaseInfoInList();
     }
 
 
@@ -195,9 +220,12 @@ public class MainFTActivity extends AppCompatActivity {
         {
             case R.id.action_insert_data:
                 insertContact();
-                displayDatabaseInfo();
+                displayDataBaseInfoInList();
                 return true;
             case R.id.action_delete_all_data:
+                int howMuchWasRemuved = getContentResolver().delete(ContactContract.ContactEntry.CONTENT_URI,null,null);
+                Toast.makeText(getApplicationContext(), "howMuchWasRemuved " + howMuchWasRemuved, Toast.LENGTH_LONG).show();
+                displayDataBaseInfoInList();
                 return true;
         }
 
@@ -206,4 +234,58 @@ public class MainFTActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
+
+
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0, CM_DELETE_ID, 0, R.string.delete_record);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (item.getItemId() == CM_DELETE_ID) {
+            // получаем из пункта контекстного меню данные по пункту списка
+            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            // извлекаем id записи и удаляем соответствующую запись в БД
+
+            Uri delUri = ContentUris.withAppendedId(ContactContract.ContactEntry.CONTENT_URI, acmi.id);
+
+            int howMuchwasDelited  = getContentResolver().delete(delUri, null, null);
+            Toast.makeText(getApplicationContext(), "how much was delited " + howMuchwasDelited, Toast.LENGTH_LONG).show();
+            contactsCursoreAdapter.notifyDataSetChanged();
+            displayDataBaseInfoInList();
+            ///db.delRec(acmi.id);
+            // обновляем курсор
+
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //db.close();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

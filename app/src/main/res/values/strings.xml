@@ -8,4 +8,6 @@
     <string name="dell_all">Delete all contacts</string>
     <string name="title_activity_edit">EditActivity</string>
     <string name="safe">Safe</string>
+    <string name="add_record">Добавить запись</string>
+    <string name="delete_record">Удалить запись</string>
 </resources>
