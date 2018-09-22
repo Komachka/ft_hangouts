@@ -93,6 +93,9 @@ public class MainFTActivity extends AppCompatActivity {
         // добавляем контекстное меню к списку
         registerForContextMenu(myListView);
 
+        View emptyView = findViewById(R.id.empty_view);
+        myListView.setEmptyView(emptyView);
+
     }
 
     private void displayDatabaseInfo() {

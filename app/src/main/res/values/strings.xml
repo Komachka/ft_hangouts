@@ -10,4 +10,6 @@
     <string name="safe">Safe</string>
     <string name="add_record">Добавить запись</string>
     <string name="delete_record">Удалить запись</string>
+    <string name="empty_view_title_text">\"It is a bit lonley here\"</string>
+    <string name="empty_view_subtitle_text">\"Start to add someone new\"</string>
 </resources>
