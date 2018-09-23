@@ -2,6 +2,7 @@ package com.example.kstorozh.ft_hangouts;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +48,10 @@ public class ContactsCursoreAdapter extends CursorAdapter {
         firstName.setText(fName);
         secondName.setText(sName);
         telephone.setText(tel);
-        icon.setImageBitmap(Helper.bitmapFromPath(context,pathToIcon));
+        if (TextUtils.isEmpty(pathToIcon))
+            icon.setImageResource(R.drawable.ic_launcher_background);
+        else
+            icon.setImageBitmap(Helper.bitmapFromPath(context,pathToIcon));
 
     }
 

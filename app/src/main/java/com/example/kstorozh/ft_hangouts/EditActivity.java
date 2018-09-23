@@ -20,6 +20,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,8 +75,10 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         //store tmp photo from camera
         String defVal = "";
         mCurrentPhotoPath = sharedPref.getString("mCurrentPhotoPath",defVal);
-        if (mCurrentPhotoPath.equals(""))
+        if (TextUtils.isEmpty(mCurrentPhotoPath)) {
             imageView.setImageResource(R.drawable.ic_launcher_foreground);
+            Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! mCurrentPhotoPath  = "+ mCurrentPhotoPath);
+        }
         else
         {
             imageView.setImageBitmap(Helper.bitmapFromPath(this,mCurrentPhotoPath));
@@ -88,37 +91,17 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         {
             getSupportActionBar().setTitle("Edit pet");
 
-            String[] projection = {
-                    ContactContract.ContactEntry._ID,
-                    ContactContract.ContactEntry.FIRST_NAME,
-                    ContactContract.ContactEntry.SECOND_NAME,
-                    ContactContract.ContactEntry.TELEPHONE_NUMBER,
-                    ContactContract.ContactEntry.ICON_PATH};
-            String selection  = null;
-            String []selectionArgs = null;
-
-            Toast.makeText(this,"Edit pet " + currentContactUri.toString(),Toast.LENGTH_LONG).show();
+            Log.d(EditActivity.class.getSimpleName(), "Edit pet " + currentContactUri.toString());
         }
         else
         {
             getSupportActionBar().setTitle("Add new pet");
-
-
         }
         getLoaderManager().initLoader(0,null,this);
 
-//
 
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Toast.makeText(this, "mCurrentPhotoPath" + mCurrentPhotoPath + "\n", Toast.LENGTH_LONG).show();
-
-        imageView.setImageBitmap(Helper.bitmapFromPath(this,mCurrentPhotoPath));
-    }
 
     private boolean saveContact()
     {
@@ -153,8 +136,20 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         else
         {
+
             int updatedRows = getContentResolver().update(currentContactUri,values,null,null);
             Toast.makeText(this, updatedRows + " row update", Toast.LENGTH_LONG).show();
+            Cursor cursor = getContentResolver().query(currentContactUri,new String[]{ContactContract.ContactEntry.ICON_PATH},null,null,null);
+            if (cursor != null && cursor.moveToNext())
+            {
+                String path = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
+                if(!path.equals(mCurrentPhotoPath))
+                {
+                    File file = new File(path);
+                    boolean deleted = file.delete();
+                    Toast.makeText(this, "Old file " + path + "was deleted ? = " + deleted, Toast.LENGTH_LONG).show();
+                }
+            }
         }
         return true;
     }
@@ -228,12 +223,17 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
             edit_first_name.setText(fName);
             edit_second_name.setText(sName);
             edit_telephone_number.setText(tel);
-            imageView.setImageBitmap(Helper.bitmapFromPath(this, pathToIcon));
-            //add icon path
+
+            if (TextUtils.isEmpty(mCurrentPhotoPath)) {
+                imageView.setImageResource(R.drawable.ic_launcher_foreground);
+                Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! mCurrentPhotoPath  = "+ mCurrentPhotoPath);
+            }
+            else
+            {
+                imageView.setImageBitmap(Helper.bitmapFromPath(this,mCurrentPhotoPath));
+            }
 
         }
-        else
-            Toast.makeText(this, "data.getCount() 0", Toast.LENGTH_LONG).show();
 
     }
 
