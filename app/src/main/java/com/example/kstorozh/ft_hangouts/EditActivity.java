@@ -60,8 +60,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
 
 
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         invalidateOptionsMenu();
@@ -127,10 +125,10 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
              uri = getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
             if (uri == null) {
                 // If the row ID is -1, then there was an error with insertion.
-                Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error with saving contact", Toast.LENGTH_SHORT).show();
             } else {
                 // Otherwise, the insertion was successful and we can display a toast with the row ID.
-                Toast.makeText(this, "Pet saved with row id: " + uri, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Contact saved with row id: " + uri, Toast.LENGTH_SHORT).show();
             }
             return true;
         }
@@ -224,20 +222,18 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
             edit_second_name.setText(sName);
             edit_telephone_number.setText(tel);
 
-            if (TextUtils.isEmpty(mCurrentPhotoPath)) {
+            if (TextUtils.isEmpty(pathToIcon)) {
                 imageView.setImageResource(R.drawable.ic_launcher_foreground);
                 Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! mCurrentPhotoPath  = "+ mCurrentPhotoPath);
             }
             else
             {
-                imageView.setImageBitmap(Helper.bitmapFromPath(this,mCurrentPhotoPath));
+                imageView.setImageBitmap(Helper.bitmapFromPath(this,pathToIcon));
             }
 
         }
 
     }
-
-
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
