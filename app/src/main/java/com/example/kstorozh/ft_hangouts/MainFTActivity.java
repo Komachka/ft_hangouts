@@ -183,6 +183,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(MainFTActivity.class.getSimpleName(), "onLoadFinished");
         contactsCursoreAdapter.swapCursor(data);
     }
 

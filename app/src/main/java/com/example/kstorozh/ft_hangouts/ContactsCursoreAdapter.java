@@ -2,6 +2,9 @@ package com.example.kstorozh.ft_hangouts;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +20,30 @@ import com.example.kstorozh.ft_hangouts.data.ContactContract;
  */
 
 public class ContactsCursoreAdapter extends CursorAdapter {
+    ImageHelper imageHelper;
+
+
+
     public ContactsCursoreAdapter(Context context, Cursor c) {
+
         super(context, c, 0);
+        imageHelper = new ImageHelper(context);
+    }
+
+    private class ViewHolder{
+        ImageView icon;
+        TextView firstName;
+        TextView secondName;
+        TextView telephone;
+
+        ViewHolder(View view)
+        {
+             icon = (ImageView) view.findViewById(R.id.ivImg);
+             firstName = (TextView) view.findViewById(R.id.tvfirstname);
+             secondName = (TextView) view.findViewById(R.id.tvsecondname);
+             telephone = (TextView) view.findViewById(R.id.tvtelephone);
+        }
+
     }
 
     // The newView method is used to inflate a new view and return it,
@@ -26,7 +51,13 @@ public class ContactsCursoreAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.item,parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item,parent,false);
+        view.setTag(view);
+
+        ViewHolder holder = new ViewHolder(view);
+        view.setTag(holder);
+        return view;
+        
     }
 
     // The bindView method is used to bind all data to a given view
@@ -34,10 +65,11 @@ public class ContactsCursoreAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        ImageView icon = (ImageView) view.findViewById(R.id.ivImg);
+
+        /*ImageView icon = (ImageView) view.findViewById(R.id.ivImg);
         TextView firstName = (TextView) view.findViewById(R.id.tvfirstname);
         TextView secondName = (TextView) view.findViewById(R.id.tvsecondname);
-        TextView telephone = (TextView) view.findViewById(R.id.tvtelephone);
+        TextView telephone = (TextView) view.findViewById(R.id.tvtelephone);*/
 
         String pathToIcon = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
         String fName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
@@ -45,13 +77,17 @@ public class ContactsCursoreAdapter extends CursorAdapter {
         String tel = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER));
 
 
-        firstName.setText(fName);
-        secondName.setText(sName);
-        telephone.setText(tel);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+        viewHolder.firstName.setText(fName);
+        viewHolder.secondName.setText(sName);
+        viewHolder.telephone.setText(tel);
         if (TextUtils.isEmpty(pathToIcon))
-            icon.setImageResource(R.drawable.ic_launcher_background);
+            viewHolder.icon.setImageResource(R.drawable.ic_launcher_background);
         else
-            icon.setImageBitmap(Helper.bitmapFromPath(context,pathToIcon));
+        {
+            imageHelper.setReducedImageSize(viewHolder.icon, pathToIcon);
+            }
+
 
     }
 

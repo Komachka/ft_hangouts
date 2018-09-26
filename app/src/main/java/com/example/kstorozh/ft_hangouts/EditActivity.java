@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.SharedPreferences;
+//import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,20 +34,25 @@ import com.example.kstorozh.ft_hangouts.data.ContactDBHealper;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class EditActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     //camera
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    List<String> allPhotosWhichWasMadeFromCamera = new ArrayList<>();
     String mCurrentPhotoPath;
-
+    ImageHelper imageHelper = new ImageHelper(this);
 
     private EditText edit_first_name;
     private EditText edit_second_name;
     private EditText edit_telephone_number;
     ImageView imageView;
-    SharedPreferences sharedPref;
+
+
+    //SharedPreferences sharedPref;
 
 
     //for intent
@@ -57,8 +62,7 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-
+        //sharedPref = this.getPreferences(Context.MODE_PRIVATE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -70,41 +74,41 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         imageView = (ImageView) findViewById(R.id.brouse_image);
 
 
-        //store tmp photo from camera
+        //store tmp photo from camera in sharedPreference file
         String defVal = "";
-        mCurrentPhotoPath = sharedPref.getString("mCurrentPhotoPath",defVal);
-        if (TextUtils.isEmpty(mCurrentPhotoPath)) {
+        //mCurrentPhotoPath = sharedPref.getString("mCurrentPhotoPath",defVal);
+
+
+        //setup image
+     /*   if (TextUtils.isEmpty(mCurrentPhotoPath))
+        {
             imageView.setImageResource(R.drawable.ic_launcher_foreground);
-            Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! mCurrentPhotoPath  = "+ mCurrentPhotoPath);
+            Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! mCurrentPhotoPath empty  = "+ mCurrentPhotoPath);
         }
         else
         {
             imageView.setImageBitmap(Helper.bitmapFromPath(this,mCurrentPhotoPath));
-        }
-
+        }*/
 
 
         currentContactUri = getIntent().getData();
         if (currentContactUri != null)
         {
-            getSupportActionBar().setTitle("Edit pet");
-
+            getSupportActionBar().setTitle("Edit contact");
             Log.d(EditActivity.class.getSimpleName(), "Edit pet " + currentContactUri.toString());
         }
         else
         {
-            getSupportActionBar().setTitle("Add new pet");
+            getSupportActionBar().setTitle("Add new contact");
         }
         getLoaderManager().initLoader(0,null,this);
 
 
     }
 
-
+    //save to db
     private boolean saveContact()
     {
-
-        // Create a new map of values, where column names are the keys
         String first_name = edit_first_name.getText().toString().trim();
         String second_name = edit_second_name.getText().toString().trim();
         String telephone_number = edit_telephone_number.getText().toString().trim();
@@ -114,21 +118,23 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
             return false;
         }
 
+        mCurrentPhotoPath = getImagePathToSave();
+
         ContentValues values = new ContentValues();
         values.put(ContactContract.ContactEntry.FIRST_NAME, first_name);
         values.put(ContactContract.ContactEntry.SECOND_NAME, second_name);
         values.put(ContactContract.ContactEntry.TELEPHONE_NUMBER, telephone_number);
         values.put(ContactContract.ContactEntry.ICON_PATH, mCurrentPhotoPath);
 
-        Uri uri = null;
+        Uri insertUri = null;
         if (currentContactUri == null) {
-             uri = getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
-            if (uri == null) {
+             insertUri = getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
+            if (insertUri == null) {
                 // If the row ID is -1, then there was an error with insertion.
                 Toast.makeText(this, "Error with saving contact", Toast.LENGTH_SHORT).show();
             } else {
                 // Otherwise, the insertion was successful and we can display a toast with the row ID.
-                Toast.makeText(this, "Contact saved with row id: " + uri, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Contact saved with row id: " + insertUri, Toast.LENGTH_SHORT).show();
             }
             return true;
         }
@@ -137,7 +143,9 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
 
             int updatedRows = getContentResolver().update(currentContactUri,values,null,null);
             Toast.makeText(this, updatedRows + " row update", Toast.LENGTH_LONG).show();
-            Cursor cursor = getContentResolver().query(currentContactUri,new String[]{ContactContract.ContactEntry.ICON_PATH},null,null,null);
+
+
+            /*Cursor cursor = getContentResolver().query(currentContactUri,new String[]{ContactContract.ContactEntry.ICON_PATH},null,null,null);
             if (cursor != null && cursor.moveToNext())
             {
                 String path = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
@@ -147,12 +155,26 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
                     boolean deleted = file.delete();
                     Toast.makeText(this, "Old file " + path + "was deleted ? = " + deleted, Toast.LENGTH_LONG).show();
                 }
-            }
+            }*/
         }
         return true;
     }
 
+    private String getImagePathToSave() {
 
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! storageDir  = "+ storageDir.getAbsolutePath());
+        for (File f: storageDir.listFiles()) {
+            Log.d(EditActivity.class.getSimpleName(), "path   = "+ f.getAbsolutePath());
+
+        }
+
+
+
+        return mCurrentPhotoPath;
+
+    }
 
 
     @Override
@@ -172,9 +194,11 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         {
             case R.id.action_save:
                 if(saveContact()) {
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("mCurrentPhotoPath", "");
-                    editor.commit();
+
+                    //удаляем из шерд преференсис линку про файл который нужно отображать
+                    //SharedPreferences.Editor editor = sharedPref.edit();
+                    //editor.putString("mCurrentPhotoPath", "");
+                   // editor.commit();
                     finish();
                 }
         }
@@ -228,7 +252,9 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
             }
             else
             {
-                imageView.setImageBitmap(Helper.bitmapFromPath(this,pathToIcon));
+                Bitmap bitmap = BitmapFactory.decodeFile(pathToIcon);
+                imageView.setImageBitmap(bitmap);
+
             }
 
         }
@@ -257,7 +283,10 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     public void chooseImage(View view)
     {
         Intent takePictueIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+
         File photoFile = null;
+
         try
         {
             photoFile = creteImageFile();
@@ -269,7 +298,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
             if(takePictueIntent.resolveActivity(getPackageManager()) != null)
             {
                 takePictueIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                //takePictueIntent.setData(photoURI);
                 startActivityForResult(takePictueIntent, REQUEST_IMAGE_CAPTURE);
 
             }
@@ -281,7 +309,13 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        Log.d(EditActivity.class.getSimpleName(), "Storage path is "  + storageDir);
+
+        //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Log.d(EditActivity.class.getSimpleName(), "Storage path is "  + storageDir);
+
         File image = File.createTempFile(imageFileName,".jpg", storageDir);
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -289,24 +323,34 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         return image;
     }
 
-
-
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)  {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
         {
-
-            imageView.setImageBitmap(Helper.bitmapFromPath(this,mCurrentPhotoPath));
-
-            //save img
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("mCurrentPhotoPath", mCurrentPhotoPath);
-            editor.commit();
-
+            //Bitmap photoCaptireBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+            //imageView.setImageBitmap(photoCaptireBitmap);
+            imageHelper.setReducedImageSize(imageView, mCurrentPhotoPath);
         }
     }
+
+/*    void setReducedImageSize(ImageView view, String imagePath)
+    {
+        int targetImageViewWidth = imageView.getWidth();
+        int targetImageViewHeight = imageView.getHeight();
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, options);
+        int cameraImageWidth = options.outWidth;
+        int cameraImageHeight = options.outHeight;
+
+        int scaleFactor = Math.min(cameraImageWidth/targetImageViewWidth, cameraImageHeight/targetImageViewHeight);
+        options.inSampleSize = scaleFactor;
+        options.inJustDecodeBounds = false;
+
+        Bitmap photoReduceSizeBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, options);
+        imageView.setImageBitmap(photoReduceSizeBitmap);
+    }*/
 
 
 }

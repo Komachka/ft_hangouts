@@ -1,24 +1,41 @@
 package com.example.kstorozh.ft_hangouts;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
+import android.view.View;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by kateryna on 23.09.18.
  */
 
 public class Helper {
-    public static Bitmap bitmapFromPath(Context context, String mCurrentPhotoPath)
+
+    static int defaultView = R.drawable.ic_launcher_foreground;
+    Context context;
+
+    public Helper(Context context) {
+        this.context = context;
+    }
+
+    public  Bitmap bitmapFromPath(String mCurrentPhotoPath)
     {
         if (mCurrentPhotoPath.equals(""))
         {
 
-            return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher_foreground);
+            return BitmapFactory.decodeResource(context.getResources(), defaultView);
         }
 
         Bitmap takenImage = BitmapFactory.decodeFile(mCurrentPhotoPath);
@@ -33,7 +50,7 @@ public class Helper {
         return rotatedBitmap;
     }
 
-    private static Bitmap makebitmapRotation(String mCurrentPhotoPath, Bitmap takenImage) {
+    private  Bitmap makebitmapRotation(String mCurrentPhotoPath, Bitmap takenImage) {
         Bitmap rotatedBitmap = null;
         ExifInterface ei = null;
         try {
@@ -74,6 +91,12 @@ public class Helper {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
+
+
+
+
+
+
 
 
 }
