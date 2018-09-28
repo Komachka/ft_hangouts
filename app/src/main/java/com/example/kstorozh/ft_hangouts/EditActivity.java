@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,22 +39,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static android.media.ThumbnailUtils.extractThumbnail;
+
 public class EditActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     //camera
     static final int REQUEST_IMAGE_CAPTURE = 1;
     List<String> allPhotosWhichWasMadeFromCamera = new ArrayList<>();
     String mCurrentPhotoPath;
-    ImageHelper imageHelper = new ImageHelper(this);
+
 
     private EditText edit_first_name;
     private EditText edit_second_name;
     private EditText edit_telephone_number;
     ImageView imageView;
-
-
-    //SharedPreferences sharedPref;
-
 
     //for intent
     Uri currentContactUri;
@@ -72,24 +71,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         edit_second_name = (EditText)findViewById(R.id.edit_second_name);
         edit_telephone_number = (EditText)findViewById(R.id.edit_telephon_number);
         imageView = (ImageView) findViewById(R.id.brouse_image);
-
-
-        //store tmp photo from camera in sharedPreference file
-        String defVal = "";
-        //mCurrentPhotoPath = sharedPref.getString("mCurrentPhotoPath",defVal);
-
-
-        //setup image
-     /*   if (TextUtils.isEmpty(mCurrentPhotoPath))
-        {
-            imageView.setImageResource(R.drawable.ic_launcher_foreground);
-            Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! mCurrentPhotoPath empty  = "+ mCurrentPhotoPath);
-        }
-        else
-        {
-            imageView.setImageBitmap(Helper.bitmapFromPath(this,mCurrentPhotoPath));
-        }*/
-
 
         currentContactUri = getIntent().getData();
         if (currentContactUri != null)
@@ -144,8 +125,22 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
             int updatedRows = getContentResolver().update(currentContactUri,values,null,null);
             Toast.makeText(this, updatedRows + " row update", Toast.LENGTH_LONG).show();
 
+        }
+        return true;
+    }
 
-            /*Cursor cursor = getContentResolver().query(currentContactUri,new String[]{ContactContract.ContactEntry.ICON_PATH},null,null,null);
+    private String getImagePathToSave() {
+
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! storageDir  = "+ storageDir.getAbsolutePath());
+        for (File f: storageDir.listFiles()) {
+            Log.d(EditActivity.class.getSimpleName(), "path   = "+ f.getAbsolutePath());
+
+        }
+        return mCurrentPhotoPath;
+
+
+        /*Cursor cursor = getContentResolver().query(currentContactUri,new String[]{ContactContract.ContactEntry.ICON_PATH},null,null,null);
             if (cursor != null && cursor.moveToNext())
             {
                 String path = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
@@ -156,23 +151,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
                     Toast.makeText(this, "Old file " + path + "was deleted ? = " + deleted, Toast.LENGTH_LONG).show();
                 }
             }*/
-        }
-        return true;
-    }
-
-    private String getImagePathToSave() {
-
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
-        Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! storageDir  = "+ storageDir.getAbsolutePath());
-        for (File f: storageDir.listFiles()) {
-            Log.d(EditActivity.class.getSimpleName(), "path   = "+ f.getAbsolutePath());
-
-        }
-
-
-
-        return mCurrentPhotoPath;
 
     }
 
@@ -252,8 +230,7 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
             }
             else
             {
-                Bitmap bitmap = BitmapFactory.decodeFile(pathToIcon);
-                imageView.setImageBitmap(bitmap);
+                setBitmap(imageView, pathToIcon);
 
             }
 
@@ -327,30 +304,36 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onActivityResult(int requestCode, int resultCode, Intent data)  {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
         {
-            //Bitmap photoCaptireBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
-            //imageView.setImageBitmap(photoCaptireBitmap);
-            imageHelper.setReducedImageSize(imageView, mCurrentPhotoPath);
+            setBitmap(imageView, mCurrentPhotoPath);
         }
     }
 
-/*    void setReducedImageSize(ImageView view, String imagePath)
-    {
-        int targetImageViewWidth = imageView.getWidth();
-        int targetImageViewHeight = imageView.getHeight();
-
+    public void setBitmap(ImageView icon, String pathToIcon) {
+        File file = new File(pathToIcon);
+        if (!file.exists())
+            return;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, options);
-        int cameraImageWidth = options.outWidth;
-        int cameraImageHeight = options.outHeight;
-
-        int scaleFactor = Math.min(cameraImageWidth/targetImageViewWidth, cameraImageHeight/targetImageViewHeight);
+        BitmapFactory.decodeFile(pathToIcon, options);
+        int scaleFactor = 2;
         options.inSampleSize = scaleFactor;
         options.inJustDecodeBounds = false;
-
-        Bitmap photoReduceSizeBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, options);
-        imageView.setImageBitmap(photoReduceSizeBitmap);
-    }*/
-
+        Bitmap bitmap = BitmapFactory.decodeFile(pathToIcon, options);
+        if (bitmap == null)
+        {
+            Log.d(EditActivity.class.getSimpleName(), "Can not create bitmap file");
+            return;
+        }
+        ExifInterface exifInterface = null;
+        try {
+            exifInterface = new ExifInterface(pathToIcon);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        Matrix matrix = ImageHelper.getRotation(orientation);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        icon.setImageBitmap(bitmap);
+    }
 
 }
