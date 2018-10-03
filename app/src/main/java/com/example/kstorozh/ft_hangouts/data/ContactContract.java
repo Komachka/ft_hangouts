@@ -11,7 +11,7 @@ import android.provider.BaseColumns;
 public class ContactContract {
 
     public static final String SQL_CREATE_ENTRIES = "CREATE TABLE "+ ContactEntry.TABLE_NAME + "(" + ContactEntry._ID  + " INTEGER PRIMARY KEY AUTOINCREMENT, " + ContactEntry.FIRST_NAME + " TEXT NOT NULL, "
-            + ContactEntry.SECOND_NAME + " TEXT NOT NULL, " + ContactEntry.TELEPHONE_NUMBER + " INTEGER NOT NULL, " + ContactEntry.ICON_PATH + " TEXT NOT NULL);";
+            + ContactEntry.SECOND_NAME + " TEXT NOT NULL, " + ContactEntry.TELEPHONE_NUMBER + " TEXT NOT NULL, " + ContactEntry.ICON_PATH + " TEXT NOT NULL);";
 
     public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + ContactEntry.TABLE_NAME;
 

@@ -61,7 +61,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
-        //sharedPref = this.getPreferences(Context.MODE_PRIVATE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -93,13 +92,17 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         String first_name = edit_first_name.getText().toString().trim();
         String second_name = edit_second_name.getText().toString().trim();
         String telephone_number = edit_telephone_number.getText().toString().trim();
+        Log.d(EditActivity.class.getSimpleName(), "telephone_number " + telephone_number);
         if (TextUtils.isEmpty(first_name) || TextUtils.isEmpty(second_name) || TextUtils.isEmpty(telephone_number))
         {
             Toast.makeText(this, "Fields can not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
 
-        mCurrentPhotoPath = getImagePathToSave();
+        if (mCurrentPhotoPath == null)
+            mCurrentPhotoPath = "";
+
+        Log.d(EditActivity.class.getSimpleName(), "path to image " + mCurrentPhotoPath);
 
         ContentValues values = new ContentValues();
         values.put(ContactContract.ContactEntry.FIRST_NAME, first_name);
@@ -132,9 +135,9 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     private String getImagePathToSave() {
 
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! storageDir  = "+ storageDir.getAbsolutePath());
+        //Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! storageDir  = "+ storageDir.getAbsolutePath());
         for (File f: storageDir.listFiles()) {
-            Log.d(EditActivity.class.getSimpleName(), "path   = "+ f.getAbsolutePath());
+            //Log.d(EditActivity.class.getSimpleName(), "path   = "+ f.getAbsolutePath());
 
         }
         return mCurrentPhotoPath;
@@ -213,25 +216,25 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         // Proceed with moving to the first row of the cursor and reading data from it
         // (This should be the only row in the cursor)
         if (data != null && data.moveToNext()) {
-            Toast.makeText(this, "data.getCount() " + data.getCount(), Toast.LENGTH_LONG).show();
             String pathToIcon = data.getString(data.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
             String fName = data.getString(data.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
             String sName = data.getString(data.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME));
             String tel = data.getString(data.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER));
 
-                //icon.setImageResource();
+
+            Log.d(EditActivity.class.getSimpleName(), "tel " + data.getString(data.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER)));
             edit_first_name.setText(fName);
             edit_second_name.setText(sName);
             edit_telephone_number.setText(tel);
 
             if (TextUtils.isEmpty(pathToIcon)) {
                 imageView.setImageResource(R.drawable.ic_launcher_foreground);
-                Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! mCurrentPhotoPath  = "+ mCurrentPhotoPath);
+                mCurrentPhotoPath = "";
             }
             else
             {
                 setBitmap(imageView, pathToIcon);
-
+                mCurrentPhotoPath = pathToIcon;
             }
 
         }

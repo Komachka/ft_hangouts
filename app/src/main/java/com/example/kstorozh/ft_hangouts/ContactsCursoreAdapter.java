@@ -103,7 +103,7 @@ public class ContactsCursoreAdapter extends CursorAdapter {
             viewHolder.icon.setImageResource(R.drawable.ic_launcher_foreground);
         else
         {
-            Log.d(EditActivity.class.getSimpleName(), "PAth not empty so we need to add image " + pathToIcon);
+            //Log.d(EditActivity.class.getSimpleName(), "PAth not empty so we need to add image " + pathToIcon);
             setBitmap(viewHolder.icon, pathToIcon);
 
         }
@@ -124,7 +124,7 @@ public class ContactsCursoreAdapter extends CursorAdapter {
         if (thumbnail != null)
         {
             icon.setImageBitmap(thumbnail);
-            Log.d(EditActivity.class.getSimpleName(), "thumbnail has cashe");
+            //Log.d(EditActivity.class.getSimpleName(), "thumbnail has cashe");
             return;
         }
         File file = new File(pathToIcon);

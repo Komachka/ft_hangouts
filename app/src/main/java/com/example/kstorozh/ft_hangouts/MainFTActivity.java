@@ -135,7 +135,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                 return true;
             case R.id.action_delete_all_data:
                 int howMuchWasRemuved = getContentResolver().delete(ContactContract.ContactEntry.CONTENT_URI, null, null);
-                Toast.makeText(getApplicationContext(), "howMuchWasRemuved " + howMuchWasRemuved, Toast.LENGTH_LONG).show();
                 return true;
         }
 

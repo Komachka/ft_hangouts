@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -116,7 +117,8 @@ public class MyContactProvider  extends ContentProvider {
             //throw new RuntimeException("Contact requires a Second name");
         }
         String number = contentValues.getAsString(ContactContract.ContactEntry.TELEPHONE_NUMBER);
-        Log.e(LOG_TAG, "Telefon valid = " + String.valueOf(isTelephonValid(number)));
+        Log.d(LOG_TAG, "telephone_number " + number);
+        Log.d(LOG_TAG, "Telefon valid = " + String.valueOf(isTelephonValid(number)));
         if (number == null)
             validData = false;
         if (!isTelephonValid(number))

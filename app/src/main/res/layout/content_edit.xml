@@ -46,7 +46,7 @@
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="+38(XXX) XXX XX XX"
-        android:inputType="phone"
+        android:inputType="number"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit_second_name" />
 
@@ -55,12 +55,16 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:onClick="chooseImage"
-        android:text="Choose image"
+        android:text="Choose Image"
+        android:textAllCaps="false"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/brouse_image"
         app:layout_constraintTop_toBottomOf="@+id/brouse_image"
-        tools:ignore="OnClick"
-        tools:layout_editor_absoluteX="243dp" />
+        tools:ignore="OnClick" />
 
     <ImageView
         android:id="@+id/brouse_image"
@@ -77,4 +81,5 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toEndOf="@+id/edit_second_name"
         app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
