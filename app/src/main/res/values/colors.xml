@@ -3,4 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="buttonColour">#BB86FC</color>
+    <color name="defTulbar">#6200EE</color>
+    <color name="primaryPurpule">#6200EE</color>
 </resources>
