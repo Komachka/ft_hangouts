@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginTop="62dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/layout_round_corner_button"
             android:onClick="chooseImage"
             android:padding="2sp"
@@ -90,20 +90,17 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@+id/brouse_image"
             app:layout_constraintTop_toBottomOf="@+id/brouse_image"
-            tools:ignore="OnClick"
-            android:layout_marginRight="8dp" />
+            tools:ignore="OnClick" />
 
         <ImageView
             android:id="@+id/brouse_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_marginEnd="2dp"
             android:layout_marginTop="8dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_foreground"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/edit_first_name"
-            android:layout_marginRight="2dp" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
 

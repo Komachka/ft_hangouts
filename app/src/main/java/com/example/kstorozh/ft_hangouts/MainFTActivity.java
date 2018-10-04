@@ -2,10 +2,12 @@ package com.example.kstorozh.ft_hangouts;
 
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -28,7 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
+
 
 
 import com.example.kstorozh.ft_hangouts.data.ContactContract;
@@ -145,7 +147,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                 insertContact();
                 return true;
             case R.id.action_delete_all_data:
-                int howMuchWasRemuved = getContentResolver().delete(ContactContract.ContactEntry.CONTENT_URI, null, null);
+                deliteAll();
                 return true;
             case R.id.action_options:
                 startActivity(new Intent(this, PrefActivity.class));
@@ -154,6 +156,35 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void deliteAll() {
+        AlertDialog.Builder builder= new AlertDialog.Builder(this);
+        builder.setMessage("Are you shure?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int howMuchWasRemuved = getContentResolver().delete(ContactContract.ContactEntry.CONTENT_URI, null, null);
+
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+
+                    }
+                });
+
+
+        AlertDialog dialog=builder.create();
+        dialog.show();
+
     }
 
 

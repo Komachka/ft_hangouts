@@ -30,7 +30,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.example.kstorozh.ft_hangouts.data.ContactContract;
 import com.example.kstorozh.ft_hangouts.data.ContactDBHealper;
@@ -121,7 +120,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         Log.d(EditActivity.class.getSimpleName(), "telephone_number " + telephone_number);
         if (TextUtils.isEmpty(first_name) || TextUtils.isEmpty(second_name) || TextUtils.isEmpty(telephone_number))
         {
-            Toast.makeText(this, "Fields can not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
 
@@ -139,20 +137,13 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         Uri insertUri = null;
         if (currentContactUri == null) {
              insertUri = getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
-            if (insertUri == null) {
-                // If the row ID is -1, then there was an error with insertion.
-                Toast.makeText(this, "Error with saving contact", Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the insertion was successful and we can display a toast with the row ID.
-                Toast.makeText(this, "Contact saved with row id: " + insertUri, Toast.LENGTH_SHORT).show();
-            }
             return true;
         }
         else
         {
 
             int updatedRows = getContentResolver().update(currentContactUri,values,null,null);
-            Toast.makeText(this, updatedRows + " row update", Toast.LENGTH_LONG).show();
+
 
         }
         return true;
@@ -190,6 +181,11 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
                 if(saveContact()) {
                     finish();
                 }
+                break;
+            case R.id.action_options:
+                startActivity(new Intent(this, PrefActivity.class));
+                break;
+            default:
         }
 
 
@@ -262,9 +258,9 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-            MenuItem menuItem = menu.findItem(R.id.action_delete_all_data);
-            menuItem.setVisible(false);
-            return true;
+        menu.findItem(R.id.action_delete_all_data).setVisible(false);
+        menu.findItem(R.id.action_insert_data).setVisible(false);
+        return true;
     }
 
 

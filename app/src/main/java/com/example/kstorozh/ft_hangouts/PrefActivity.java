@@ -23,12 +23,13 @@ public class PrefActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
 
-        Preference preference = findPreference("toolbarCol");
+        Preference preference = findPreference(SHAR_KEY);
         preference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                Toast.makeText(PrefActivity.this, "Changed", Toast.LENGTH_SHORT).show();
-                return true;
+
+                finish();
+                return false;
             }
         });
 
