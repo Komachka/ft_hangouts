@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <PreferenceCategory
+            android:title="Choose colou for toolbar"
+            >
+
+            <ListPreference
+                android:title="Pick your favourite color"
+                android:key="toolbarCol"
+                android:entries="@array/listArray"
+                android:entryValues="@array/listValues" />
 
 
-        <ListPreference
-            android:title="Pick your favourite color"
-            android:key="toolbarCol"
-            android:entries="@array/listArray"
-            android:entryValues="@array/listValues" />
+        </PreferenceCategory>
 
 </PreferenceScreen>

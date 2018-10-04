@@ -9,6 +9,7 @@
         android:id="@+id/ivImg"
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:padding="1dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher"
         ></ImageView>

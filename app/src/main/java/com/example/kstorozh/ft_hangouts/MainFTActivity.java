@@ -56,6 +56,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        invalidateOptionsMenu();
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -72,8 +73,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             public void onClick(View view) {
                 Intent intent = new Intent(MainFTActivity.this, EditActivity.class);
                 startActivity(intent);
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
 
@@ -94,11 +93,9 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                view.setBackgroundResource(R.color.colorAccent);
                 Intent intent = new Intent(MainFTActivity.this, EditActivity.class);
                 Uri uri = Uri.withAppendedPath(ContactContract.ContactEntry.CONTENT_URI, String.valueOf(id));
                 intent.setData(uri);
-                view.setBackgroundResource(R.color.white);
                 startActivity(intent);
 
             }
@@ -189,7 +186,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             // извлекаем id записи и удаляем соответствующую запись в БД
             Uri delUri = ContentUris.withAppendedId(ContactContract.ContactEntry.CONTENT_URI, acmi.id);
             int howMuchwasDelited = getContentResolver().delete(delUri, null, null);
-            Toast.makeText(getApplicationContext(), "how much was delited " + howMuchwasDelited, Toast.LENGTH_LONG).show();
             return true;
         }
         if (item.getItemId() == CM_SMS_ID) {
@@ -281,5 +277,14 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         contactsCursoreAdapter.swapCursor(null);
+    }
+
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem menuItem = menu.findItem(R.id.action_save);
+        menuItem.setVisible(false);
+        return true;
     }
 }

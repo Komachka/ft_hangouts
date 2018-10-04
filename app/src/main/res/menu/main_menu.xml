@@ -15,7 +15,7 @@
         android:id="@+id/action_save"
         android:title="@string/save"
         app:showAsAction="always"
-        android:icon="@mipmap/ic_launcher_round"/>
+        android:icon="@android:drawable/ic_input_add"/>
     <item
         android:id="@+id/action_options"
         android:title="@string/options"/>

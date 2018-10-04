@@ -10,10 +10,10 @@
 
 
     <array name="listValues">
-        <item>FF0000</item>
-        <item>00FF00</item>
-        <item>0000FF</item>
-        <item>FF00FF</item>
+        <item>E57373</item>
+        <item>81C784</item>
+        <item>4FC3F7</item>
+        <item>9575CD</item>
     </array>
 
 </resources>
