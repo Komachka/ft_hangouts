@@ -27,9 +27,8 @@ public class PrefActivity extends PreferenceActivity {
         preference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-
-                finish();
-                return false;
+                Toast.makeText(PrefActivity.this, "Changed", Toast.LENGTH_SHORT).show();
+                return true;
             }
         });
 

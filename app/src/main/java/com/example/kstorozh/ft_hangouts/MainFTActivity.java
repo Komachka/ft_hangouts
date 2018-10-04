@@ -2,6 +2,7 @@ package com.example.kstorozh.ft_hangouts;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
@@ -62,7 +63,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, "FFFFFF");
+        @SuppressLint("ResourceType") String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, getResources().getString(R.color.defTulbar));
         Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
         int color = Color.parseColor("#"+toolbarColour);
         toolbar.setBackgroundColor(color);
