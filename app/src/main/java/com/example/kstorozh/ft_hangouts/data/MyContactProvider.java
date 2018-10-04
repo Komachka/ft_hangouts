@@ -1,6 +1,7 @@
 package com.example.kstorozh.ft_hangouts.data;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -124,6 +125,11 @@ public class MyContactProvider  extends ContentProvider {
         if (!isTelephonValid(number))
             validData = false;
         Log.e(LOG_TAG, "Data valid = " + String.valueOf(validData));
+
+        String photo = contentValues.getAsString(ContactContract.ContactEntry.ICON_PATH);
+        Log.d(LOG_TAG, "photopath = " + photo);
+        if (photo == null)
+            contentValues.put(ContactContract.ContactEntry.ICON_PATH, "");
         if (validData) {
             SQLiteDatabase db = contactDBHealper.getWritableDatabase();
             long id = db.insert(ContactContract.ContactEntry.TABLE_NAME, null, contentValues);
@@ -142,7 +148,7 @@ public class MyContactProvider  extends ContentProvider {
 
     public static boolean isTelephonValid(String number)
     {
-        String regexex  = "[0-9]+";
+        String regexex  = "[+0-9]+";
         Pattern pattern = Pattern.compile(regexex);
         Matcher matcher = pattern.matcher(number);
         if (matcher.matches())
@@ -217,6 +223,33 @@ public class MyContactProvider  extends ContentProvider {
             String name = contentValues.getAsString(ContactContract.ContactEntry.SECOND_NAME);
             if (name == null) {
                 validData = false;
+            }
+        }
+        if (contentValues.containsKey(ContactContract.ContactEntry.TELEPHONE_NUMBER))
+        {
+            String name = contentValues.getAsString(ContactContract.ContactEntry.TELEPHONE_NUMBER);
+            if (name == null) {
+                validData = false;
+            }
+        }
+        if (contentValues.containsKey(ContactContract.ContactEntry.ICON_PATH))
+        {
+            String name = contentValues.getAsString(ContactContract.ContactEntry.ICON_PATH);
+            if (name == null) {
+                selection = ContactContract.ContactEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                Cursor cursor = query(uri, new String[]{ContactContract.ContactEntry.ICON_PATH},selection,selectionArgs,null);
+                if (cursor != null && cursor.moveToNext())
+                {
+                    name = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
+                    if (name != null)
+                        contentValues.put(ContactContract.ContactEntry.ICON_PATH, name);
+                    else
+                        contentValues.put(ContactContract.ContactEntry.ICON_PATH, "");
+                }
+                else
+                    validData= false;
+
             }
         }
         if (validData) {

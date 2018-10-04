@@ -5,5 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="buttonColour">#BB86FC</color>
     <color name="defTulbar">#6200EE</color>
-    <color name="primaryPurpule">#6200EE</color>
+    <color name="toolbarDefColour">#6200EE</color>
 </resources>

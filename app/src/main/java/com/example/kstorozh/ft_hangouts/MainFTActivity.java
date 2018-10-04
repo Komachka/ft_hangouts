@@ -8,27 +8,26 @@ import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -41,20 +40,31 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     private static final int CM_CALL_ID = 2;
     private static final int CM_SMS_ID = 3;
 
-    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 10;
 
-    private ListView myListView;  // the ListActivity's ListView
+    private static final int MY_PERMISSIONS_REQUEST_CALL = 10;
+
+    private ListView myListView;
     public ContactsCursoreAdapter contactsCursoreAdapter;
-
+    SharedPreferences sharedPreferences;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_ft);
 
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, "FFFFFF");
+        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
+        int color = Color.parseColor("#"+toolbarColour);
+        toolbar.setBackgroundColor(color);
+
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -83,10 +93,14 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                view.setBackgroundResource(R.color.colorAccent);
                 Intent intent = new Intent(MainFTActivity.this, EditActivity.class);
                 Uri uri = Uri.withAppendedPath(ContactContract.ContactEntry.CONTENT_URI, String.valueOf(id));
                 intent.setData(uri);
+                view.setBackgroundResource(R.color.white);
                 startActivity(intent);
+
             }
         });
 
@@ -136,6 +150,9 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             case R.id.action_delete_all_data:
                 int howMuchWasRemuved = getContentResolver().delete(ContactContract.ContactEntry.CONTENT_URI, null, null);
                 return true;
+            case R.id.action_options:
+                startActivity(new Intent(this, PrefActivity.class));
+                return true;
         }
 
 
@@ -149,6 +166,19 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         menu.add(0, CM_DELETE_ID, 0, R.string.delete_record);
         menu.add(1, CM_CALL_ID, 1, "Call to contact");
         menu.add(3, CM_SMS_ID, 3, "Sent sms to contact");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, "FFFFFF");
+        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
+        int color = Color.parseColor("#"+toolbarColour);
+        toolbar.setBackgroundColor(color);
+
+
     }
 
     @Override
@@ -202,7 +232,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                         }
                         else
                         {
-                            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+                            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, MY_PERMISSIONS_REQUEST_CALL);
                         }
 
 

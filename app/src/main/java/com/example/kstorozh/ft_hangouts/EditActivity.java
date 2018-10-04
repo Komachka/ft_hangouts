@@ -7,14 +7,17 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 //import android.content.SharedPreferences;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -53,6 +56,8 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     private EditText edit_second_name;
     private EditText edit_telephone_number;
     ImageView imageView;
+    Toolbar toolbar;
+    SharedPreferences sharedPreferences;
 
     //for intent
     Uri currentContactUri;
@@ -62,8 +67,18 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, "FFFFFF");
+        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
+        int color = Color.parseColor("#"+toolbarColour);
+        toolbar.setBackgroundColor(color);
+
+
+
+
         invalidateOptionsMenu();
 
         edit_first_name = (EditText)findViewById(R.id.edit_first_name);
@@ -83,6 +98,17 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         getLoaderManager().initLoader(0,null,this);
 
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, "FFFFFF");
+        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
+        int color = Color.parseColor("#"+toolbarColour);
+        toolbar.setBackgroundColor(color);
 
     }
 
@@ -142,19 +168,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         return mCurrentPhotoPath;
 
-
-        /*Cursor cursor = getContentResolver().query(currentContactUri,new String[]{ContactContract.ContactEntry.ICON_PATH},null,null,null);
-            if (cursor != null && cursor.moveToNext())
-            {
-                String path = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
-                if(!path.equals(mCurrentPhotoPath))
-                {
-                    File file = new File(path);
-                    boolean deleted = file.delete();
-                    Toast.makeText(this, "Old file " + path + "was deleted ? = " + deleted, Toast.LENGTH_LONG).show();
-                }
-            }*/
-
     }
 
 
@@ -175,11 +188,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         {
             case R.id.action_save:
                 if(saveContact()) {
-
-                    //удаляем из шерд преференсис линку про файл который нужно отображать
-                    //SharedPreferences.Editor editor = sharedPref.edit();
-                    //editor.putString("mCurrentPhotoPath", "");
-                   // editor.commit();
                     finish();
                 }
         }
