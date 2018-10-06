@@ -51,6 +51,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     SharedPreferences sharedPreferences;
     Toolbar toolbar;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,14 +62,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
         invalidateOptionsMenu();
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        @SuppressLint("ResourceType") String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, getResources().getString(R.color.defTulbar));
-        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
-        int color = Color.parseColor("#"+toolbarColour);
-        toolbar.setBackgroundColor(color);
-
-
+        setTulbarColour();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -105,6 +99,26 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         });
 
         registerForContextMenu(myListView);
+
+    }
+
+    @SuppressLint("ResourceType")
+    private void setTulbarColour() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, getResources().getString(R.color.defTulbar));
+        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
+        int color;
+        try {
+            color = Color.parseColor("#" + toolbarColour);
+
+        }
+        catch (Exception e)
+        {
+            Log.d(EditActivity.class.getSimpleName(), "Parsing was faild");
+            color = Color.parseColor(getResources().getString(R.color.defTulbar));
+        }
+        toolbar.setBackgroundColor(color);
 
     }
 
@@ -200,14 +214,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     protected void onStart() {
         super.onStart();
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, "FFFFFF");
-        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
-        int color = Color.parseColor("#"+toolbarColour);
-        toolbar.setBackgroundColor(color);
-
-
+        setTulbarColour();
     }
 
     @Override

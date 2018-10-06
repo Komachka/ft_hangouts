@@ -1,5 +1,6 @@
 package com.example.kstorozh.ft_hangouts;
 
+import android.annotation.SuppressLint;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Context;
@@ -45,6 +46,10 @@ import static android.media.ThumbnailUtils.extractThumbnail;
 
 public class EditActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
+
+    //TODO fix number telephone
+
+
     //camera
     static final int REQUEST_IMAGE_CAPTURE = 1;
     List<String> allPhotosWhichWasMadeFromCamera = new ArrayList<>();
@@ -68,15 +73,7 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, "FFFFFF");
-        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
-        int color = Color.parseColor("#"+toolbarColour);
-        toolbar.setBackgroundColor(color);
-
-
-
+        setTulbarColour();
 
         invalidateOptionsMenu();
 
@@ -103,11 +100,7 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onStart() {
         super.onStart();
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, "FFFFFF");
-        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
-        int color = Color.parseColor("#"+toolbarColour);
-        toolbar.setBackgroundColor(color);
+        setTulbarColour();
 
     }
 
@@ -342,5 +335,26 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         icon.setImageBitmap(bitmap);
     }
+
+    @SuppressLint("ResourceType")
+    private void setTulbarColour() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, getResources().getString(R.color.defTulbar));
+        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
+        int color;
+        try {
+            color = Color.parseColor("#" + toolbarColour);
+
+        }
+        catch (Exception e)
+        {
+            Log.d(EditActivity.class.getSimpleName(), "Parsing was faild");
+            color = Color.parseColor(getResources().getString(R.color.defTulbar));
+        }
+        toolbar.setBackgroundColor(color);
+
+    }
+
 
 }

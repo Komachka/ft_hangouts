@@ -84,11 +84,6 @@ public class ContactsCursoreAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        /*ImageView icon = (ImageView) view.findViewById(R.id.ivImg);
-        TextView firstName = (TextView) view.findViewById(R.id.tvfirstname);
-        TextView secondName = (TextView) view.findViewById(R.id.tvsecondname);
-        TextView telephone = (TextView) view.findViewById(R.id.tvtelephone);*/
-
         String pathToIcon = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.ICON_PATH));
         String fName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
         String sName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME));
