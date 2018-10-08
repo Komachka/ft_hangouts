@@ -6,11 +6,17 @@
         android:name="android.hardware.camera"
         android:required="true" />
 
+    <!-- To make and save file from camera -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
+
+    <!-- To use SMS based services -->
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <!-- To call -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
@@ -20,21 +26,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        >
+        android:name=".App">
         <activity
             android:name=".MainFTActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="orientation">
+            android:configChanges="orientation"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+               <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".EditActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="orientation"/>
+            android:configChanges="orientation"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
             android:name=".data.MyContactProvider"
@@ -50,12 +56,23 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-
         <activity
             android:name=".PrefActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+
+        <activity android:name=".ReadSMS"/>
+
+
+        <receiver android:name=".data.SMSResiver" android:exported="true">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+
+
     </application>
 
 </manifest>

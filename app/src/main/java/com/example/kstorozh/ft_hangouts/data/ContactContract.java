@@ -8,6 +8,9 @@ import android.provider.BaseColumns;
  * Created by kstorozh on 11/30/17.
  */
 
+//TODO add sqlexcaption for update funcktion
+
+
 public class ContactContract {
 
     public static final String SQL_CREATE_ENTRIES = "CREATE TABLE "+ ContactEntry.TABLE_NAME + "(" + ContactEntry._ID  + " INTEGER PRIMARY KEY AUTOINCREMENT, " + ContactEntry.FIRST_NAME + " TEXT NOT NULL, "

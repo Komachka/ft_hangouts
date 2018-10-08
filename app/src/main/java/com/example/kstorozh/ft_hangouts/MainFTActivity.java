@@ -19,9 +19,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,7 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
+import android.widget.Toast;
 
 
 import com.example.kstorozh.ft_hangouts.data.ContactContract;
@@ -39,9 +41,13 @@ import com.example.kstorozh.ft_hangouts.data.ContactContract;
 
 public class MainFTActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+   public static final String LOG_TAG = MainFTActivity.class.getSimpleName();
+
+
     private static final int CM_DELETE_ID = 1;
     private static final int CM_CALL_ID = 2;
     private static final int CM_SMS_ID = 3;
+    private static final int CM_SMS_READ_ID = 4;
 
 
     private static final int MY_PERMISSIONS_REQUEST_CALL = 10;
@@ -61,9 +67,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         setSupportActionBar(toolbar);
 
         invalidateOptionsMenu();
-
         setTulbarColour();
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,10 +77,11 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             }
         });
 
+        if (!IsTelephonePermissionGranted())
+            requestTelephoneCallPermission();
 
         myListView = (ListView) findViewById(R.id.myList);
         // добавляем контекстное меню к списку
-
         View emptyView = findViewById(R.id.empty_view);
         myListView.setEmptyView(emptyView);
 
@@ -97,9 +102,14 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
             }
         });
-
         registerForContextMenu(myListView);
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setTulbarColour();
     }
 
     @SuppressLint("ResourceType")
@@ -146,9 +156,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         getMenuInflater().inflate(R.menu.main_menu, menu);
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -168,8 +176,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                 startActivity(new Intent(this, PrefActivity.class));
                 return true;
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -209,14 +215,10 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         menu.add(0, CM_DELETE_ID, 0, R.string.delete_record);
         menu.add(1, CM_CALL_ID, 1, "Call to contact");
         menu.add(3, CM_SMS_ID, 3, "Sent sms to contact");
+        menu.add(4, CM_SMS_READ_ID, 4, "Read sms");
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        setTulbarColour();
-    }
-
+    @SuppressLint("MissingPermission")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == CM_DELETE_ID) {
@@ -248,43 +250,33 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                 }
             }
         }
-        if (item.getItemId() == CM_CALL_ID) {
+        if (item.getItemId() == CM_CALL_ID || item.getItemId() == CM_SMS_READ_ID) {
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             Uri getInfoUri = ContentUris.withAppendedId(ContactContract.ContactEntry.CONTENT_URI, acmi.id);
             String[] projection = {
                     ContactContract.ContactEntry._ID,
                     ContactContract.ContactEntry.TELEPHONE_NUMBER};
             Cursor cursor = getContentResolver().query(getInfoUri, projection, null, null, null);
+            String tel = null;
             if (cursor != null && cursor.moveToNext()) {
-
-                String tel = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER));
+                tel = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER));
+            }
+            if (item.getItemId() == CM_CALL_ID) {
                 Intent telIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + tel));
                 if (telIntent.resolveActivity(getPackageManager()) != null) {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE))
-                        {
-                            Log.d(EditActivity.class.getSimpleName(), "activity shouldShowRequestPermissionRationale");
-                        }
-                        else
-                        {
-                            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, MY_PERMISSIONS_REQUEST_CALL);
-                        }
-
-
-
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return false;
-                    }
                     startActivity(telIntent);
                 }
             }
+            if (item.getItemId() == CM_SMS_READ_ID)
+            {
+                Intent intent = new Intent(MainFTActivity.this, ReadSMS.class);
+                intent.putExtra("TELEPHONE", tel);
+                startActivity(intent);
+
+
+            }
         }
+
         return super.onContextItemSelected(item);
     }
 
@@ -302,8 +294,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                 ContactContract.ContactEntry.ICON_PATH};
         String selection  = null;
         String []selectionArgs = null;
-
-
         return new CursorLoader(this, ContactContract.ContactEntry.CONTENT_URI, projection, selection, selectionArgs, null);
     }
 
@@ -326,4 +316,52 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         menuItem.setVisible(false);
         return true;
     }
+
+
+
+
+    private boolean IsTelephonePermissionGranted()
+    {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestTelephoneCallPermission()
+    {
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
+            Log.d(EditActivity.class.getSimpleName(), "activity shouldShowRequestPermissionRationale");
+        }
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, MY_PERMISSIONS_REQUEST_CALL);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        Log.d(LOG_TAG, "In onRequestPermissionsResult")  ;
+        switch (requestCode)
+        {
+            case MY_PERMISSIONS_REQUEST_CALL: {
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    Toast.makeText(this, "Permission is OK", Toast.LENGTH_LONG).show();
+
+                }
+                else
+                {
+                    Toast.makeText(this, "Can not make a call becouse of no permissions", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+
+    }
+
+
+
+
+
+
+
+
 }
