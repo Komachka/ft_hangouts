@@ -3,6 +3,7 @@ package com.example.kstorozh.ft_hangouts;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
@@ -49,8 +50,15 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     private static final int CM_SMS_ID = 3;
     private static final int CM_SMS_READ_ID = 4;
 
+    String[] PERMISSIONS = {android.Manifest.permission.CAMERA,
+            android.Manifest.permission.READ_SMS,
+            Manifest.permission.CALL_PHONE
+    };
 
     private static final int MY_PERMISSIONS_REQUEST_CALL = 10;
+    public static final int SMS_PERMISSION_CODE = 20;
+
+    private static final int REQUEST= 112;
 
     private ListView myListView;
     public ContactsCursoreAdapter contactsCursoreAdapter;
@@ -63,6 +71,23 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_ft);
 
+
+        if (!hasPermissions()) {
+            Log.d("TAG","@@@ IN IF hasPermissions");
+            ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
+        }
+        else {
+            Log.d("TAG","@@@ IN ELSE hasPermissions");
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -77,8 +102,17 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             }
         });
 
-        if (!IsTelephonePermissionGranted())
+     /*   if (!IsTelephonePermissionGranted())
             requestTelephoneCallPermission();
+
+        if (!IsSMSPermissionGranted()) {
+            Toast.makeText(this, "here", Toast.LENGTH_SHORT).show();
+            requestREadAndSendSmsPermission();
+        }
+        else
+        {
+            Toast.makeText(this, "FUC", Toast.LENGTH_SHORT).show();
+        }*/
 
         myListView = (ListView) findViewById(R.id.myList);
         // добавляем контекстное меню к списку
@@ -104,6 +138,16 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         });
         registerForContextMenu(myListView);
 
+    }
+
+    private boolean hasPermissions() {
+
+        for (String permission : PERMISSIONS) {
+            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -269,6 +313,12 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             }
             if (item.getItemId() == CM_SMS_READ_ID)
             {
+                if(!IsSMSPermissionGranted())
+                {
+                    Toast.makeText(this, "You have no permission to read this", Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
                 Intent intent = new Intent(MainFTActivity.this, ReadSMS.class);
                 intent.putExtra("TELEPHONE", tel);
                 startActivity(intent);
@@ -353,13 +403,36 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                     Toast.makeText(this, "Can not make a call becouse of no permissions", Toast.LENGTH_LONG).show();
                 }
             }
+            case REQUEST : {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("TAG","@@@ PERMISSIONS grant");
+                } else {
+                    Log.d("TAG","@@@ PERMISSIONS Denied");
+                    Toast.makeText(this, "PERMISSIONS Denied", Toast.LENGTH_LONG).show();
+                }
+            }
+
         }
 
     }
 
 
 
+    private boolean IsSMSPermissionGranted()
+    {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
+    }
 
+    private void requestREadAndSendSmsPermission()
+    {
+        Log.d(LOG_TAG, "In requestREadAndSendSmsPermission")  ;
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS))
+        {
+            // You may display a non-blocking explanation here, read more in the documentation:
+            // https://developer.android.com/training/permissions/requesting.html
+        }
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, SMS_PERMISSION_CODE);
+    }
 
 
 

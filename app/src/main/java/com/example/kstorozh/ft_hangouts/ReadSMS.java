@@ -1,9 +1,12 @@
 package com.example.kstorozh.ft_hangouts;
 
 import android.Manifest;
+import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.CursorLoader;
 import android.content.IntentFilter;
+import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ParseException;
@@ -25,10 +28,10 @@ import com.example.kstorozh.ft_hangouts.data.SMSResiver;
 
 import java.util.ArrayList;
 
-public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String LOG_TAG = ReadSMS.class.getSimpleName();
-    public static final int SMS_PERMISSION_CODE = 20;
+
 
     private static ReadSMS inst;
     ArrayList<String> smsMessageList = new ArrayList<String>();
@@ -50,20 +53,18 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
             Log.e(LOG_TAG, "Something strange happened");
             finish();
         }
-
-
         setContentView(R.layout.activity_read_sms);
-        if (!IsSMSPermissionGranted()) {
-            Log.d(LOG_TAG, "Permision is not granted");
-            requestREadAndSendSmsPermission();
-        }
-        smsListView = findViewById(R.id.SMSList);
+        //smsMessageList.add("");
+        smsListView = (ListView) findViewById(R.id.SMSList);
+        View emptyView = findViewById(R.id.empty_view_sms);
+        smsListView.setEmptyView(emptyView);
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, smsMessageList);
         smsListView.setAdapter(arrayAdapter);
         smsListView.setOnItemClickListener((AdapterView.OnItemClickListener) this);
-        if (IsSMSPermissionGranted())
-            refreshSmsInbox();
 
+        //refreshSmsInbox();
+
+        getLoaderManager().initLoader(0,null,this);
     }
 
     private void refreshSmsInbox() {
@@ -110,7 +111,7 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
 
 
 
-    private boolean IsSMSPermissionGranted()
+/*    private boolean IsSMSPermissionGranted()
     {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
     }
@@ -124,7 +125,7 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
             // https://developer.android.com/training/permissions/requesting.html
         }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, SMS_PERMISSION_CODE);
-    }
+    }*/
 
 
     @Override
@@ -133,14 +134,12 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
         Log.d(LOG_TAG, "In onRequestPermissionsResult")  ;
         switch (requestCode)
         {
-            case SMS_PERMISSION_CODE: {
+            case MainFTActivity.SMS_PERMISSION_CODE: {
                 if (grantResults.length > 0 &&
                         grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 {
                     refreshSmsInbox();
-                    // permission was granted, yay! Do the
-                    // SMS related task you need to do.
-                }
+            }
 
                 else
                 {
@@ -171,5 +170,56 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+
+        Uri uri = Uri.parse("content://sms/inbox");
+        String selection = "address = ?";
+        String[] selectionArgs = null;
+        try {
+            selectionArgs = new String[]{telephonNumber};
+        }
+        catch (Exception ex)
+        {
+            Log.d(LOG_TAG, "Parse excaption");
+        }
+        if (selectionArgs != null) {
+            return new CursorLoader(getApplicationContext(), uri, null, selection, selectionArgs, null);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor smsInboxCursor) {
+
+
+        if (smsInboxCursor != null && smsInboxCursor.moveToNext())
+        {
+            int indexBody = smsInboxCursor.getColumnIndex("body");
+            int indexAddress = smsInboxCursor.getColumnIndex("address");
+            if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
+            arrayAdapter.clear();
+            do {
+
+                String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
+                        "\n" + smsInboxCursor.getString(indexBody) + "\n";
+                arrayAdapter.add(str);
+
+
+            } while (smsInboxCursor.moveToNext());
+
+            //arrayAdapter.add(smsMessageList);
+            arrayAdapter.notifyDataSetChanged();
+
+        }
+
+    }
+
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        arrayAdapter.clear();
     }
 }
