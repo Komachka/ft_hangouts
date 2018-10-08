@@ -6,6 +6,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -132,7 +133,15 @@ public class MyContactProvider  extends ContentProvider {
             contentValues.put(ContactContract.ContactEntry.ICON_PATH, "");
         if (validData) {
             SQLiteDatabase db = contactDBHealper.getWritableDatabase();
-            long id = db.insert(ContactContract.ContactEntry.TABLE_NAME, null, contentValues);
+            long id = 0;
+            try {
+                id = db.insert(ContactContract.ContactEntry.TABLE_NAME, null, contentValues);
+            }
+            catch (SQLiteConstraintException ex)
+            {
+                Log.e(LOG_TAG, "Inserting to a table fauled" + ex.getMessage());
+                id = -1;
+            }
             if (id == -1) {
 
                 Log.e(LOG_TAG, "Falled to insert row for " + uri);

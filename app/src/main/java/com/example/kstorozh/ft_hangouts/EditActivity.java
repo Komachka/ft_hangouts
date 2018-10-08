@@ -49,7 +49,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
 
     //TODO fix number telephone
 
-
     //camera
     static final int REQUEST_IMAGE_CAPTURE = 1;
     List<String> allPhotosWhichWasMadeFromCamera = new ArrayList<>();
