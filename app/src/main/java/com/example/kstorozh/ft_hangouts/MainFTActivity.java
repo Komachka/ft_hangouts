@@ -3,7 +3,6 @@ package com.example.kstorozh.ft_hangouts;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
@@ -18,11 +17,9 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -47,7 +44,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
     private static final int CM_DELETE_ID = 1;
     private static final int CM_CALL_ID = 2;
-    private static final int CM_SMS_ID = 3;
+    private static final int CM_SMS_SEND_ID = 3;
     private static final int CM_SMS_READ_ID = 4;
 
     String[] PERMISSIONS = {android.Manifest.permission.CAMERA,
@@ -55,17 +52,12 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             Manifest.permission.CALL_PHONE
     };
 
-    private static final int MY_PERMISSIONS_REQUEST_CALL = 10;
-    public static final int SMS_PERMISSION_CODE = 20;
-
     private static final int REQUEST= 112;
 
     private ListView myListView;
     public ContactsCursoreAdapter contactsCursoreAdapter;
     SharedPreferences sharedPreferences;
     Toolbar toolbar;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,24 +65,13 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
 
         if (!hasPermissions()) {
-            Log.d("TAG","@@@ IN IF hasPermissions");
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
         }
         else {
-            Log.d("TAG","@@@ IN ELSE hasPermissions");
+            Log.d(LOG_TAG, "Application is already has permissions");
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         invalidateOptionsMenu();
         setTulbarColour();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -102,18 +83,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             }
         });
 
-     /*   if (!IsTelephonePermissionGranted())
-            requestTelephoneCallPermission();
-
-        if (!IsSMSPermissionGranted()) {
-            Toast.makeText(this, "here", Toast.LENGTH_SHORT).show();
-            requestREadAndSendSmsPermission();
-        }
-        else
-        {
-            Toast.makeText(this, "FUC", Toast.LENGTH_SHORT).show();
-        }*/
-
         myListView = (ListView) findViewById(R.id.myList);
         // добавляем контекстное меню к списку
         View emptyView = findViewById(R.id.empty_view);
@@ -123,7 +92,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         myListView.setAdapter(contactsCursoreAdapter);
 
         getLoaderManager().initLoader(0, null, this);
-
 
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -160,6 +128,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     private void setTulbarColour() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        //TODO check why parsing from first time is incorect
         String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, getResources().getString(R.color.defTulbar));
         Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
         int color;
@@ -257,9 +226,9 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.add(0, CM_DELETE_ID, 0, R.string.delete_record);
-        menu.add(1, CM_CALL_ID, 1, "Call to contact");
-        menu.add(3, CM_SMS_ID, 3, "Sent sms to contact");
-        menu.add(4, CM_SMS_READ_ID, 4, "Read sms");
+        menu.add(1, CM_CALL_ID, 1, R.string.call_to_contact);
+        menu.add(3, CM_SMS_SEND_ID, 3, R.string.sendSms);
+        menu.add(4, CM_SMS_READ_ID, 4, R.string.getSms);
     }
 
     @SuppressLint("MissingPermission")
@@ -273,7 +242,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             int howMuchwasDelited = getContentResolver().delete(delUri, null, null);
             return true;
         }
-        if (item.getItemId() == CM_SMS_ID) {
+        if (item.getItemId() == CM_SMS_SEND_ID || item.getItemId() == CM_CALL_ID || item.getItemId() == CM_SMS_READ_ID) {
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             Uri getInfoUri = ContentUris.withAppendedId(ContactContract.ContactEntry.CONTENT_URI, acmi.id);
             String[] projection = {
@@ -282,50 +251,44 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                     ContactContract.ContactEntry.SECOND_NAME,
                     ContactContract.ContactEntry.TELEPHONE_NUMBER};
             Cursor cursor = getContentResolver().query(getInfoUri, projection, null, null, null);
-            if (cursor != null && cursor.moveToNext()) {
-
-                String fName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
-                String sName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME));
-                String tel = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER));
-                Intent smsIntent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", tel, null));
-                smsIntent.putExtra("sms_body", "Hello " + fName + " " + sName);
-                if (smsIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(smsIntent);
-                }
-            }
-        }
-        if (item.getItemId() == CM_CALL_ID || item.getItemId() == CM_SMS_READ_ID) {
-            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-            Uri getInfoUri = ContentUris.withAppendedId(ContactContract.ContactEntry.CONTENT_URI, acmi.id);
-            String[] projection = {
-                    ContactContract.ContactEntry._ID,
-                    ContactContract.ContactEntry.TELEPHONE_NUMBER};
-            Cursor cursor = getContentResolver().query(getInfoUri, projection, null, null, null);
+            String fName = null;
+            String sName = null;
             String tel = null;
+
+
             if (cursor != null && cursor.moveToNext()) {
+                fName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
+                sName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME));
                 tel = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.TELEPHONE_NUMBER));
-            }
-            if (item.getItemId() == CM_CALL_ID) {
-                Intent telIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + tel));
-                if (telIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(telIntent);
+
+
+                switch (item.getItemId()) {
+                    case (CM_SMS_SEND_ID) : {
+                        Intent smsIntent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", tel, null));
+                        smsIntent.putExtra("sms_body", "Hello " + fName + " " + sName);
+                        if (smsIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(smsIntent);
+                        }
+                        break;
+                    }
+                    case (CM_CALL_ID):{
+                        Intent telIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + tel));
+                        if (telIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(telIntent);
+                        }
+                        break;
+                    }
+                    case (CM_SMS_READ_ID) : {
+                        Intent intent = new Intent(MainFTActivity.this, ReadSMS.class);
+                        intent.putExtra("sms_body", "Hello " + fName + " " + sName);
+                        intent.putExtra("TELEPHONE", tel);
+                        startActivity(intent);
+                        break; }
                 }
             }
-            if (item.getItemId() == CM_SMS_READ_ID)
-            {
-                if(!IsSMSPermissionGranted())
-                {
-                    Toast.makeText(this, "You have no permission to read this", Toast.LENGTH_LONG).show();
-                    return false;
-                }
-
-                Intent intent = new Intent(MainFTActivity.this, ReadSMS.class);
-                intent.putExtra("TELEPHONE", tel);
-                startActivity(intent);
-
-
+            else {
+                Log.d(LOG_TAG, "Cursor is empty"); }
             }
-        }
 
         return super.onContextItemSelected(item);
     }
@@ -370,71 +333,25 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
 
 
-    private boolean IsTelephonePermissionGranted()
-    {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestTelephoneCallPermission()
-    {
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
-            Log.d(EditActivity.class.getSimpleName(), "activity shouldShowRequestPermissionRationale");
-        }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, MY_PERMISSIONS_REQUEST_CALL);
-    }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        Log.d(LOG_TAG, "In onRequestPermissionsResult")  ;
+
         switch (requestCode)
         {
-            case MY_PERMISSIONS_REQUEST_CALL: {
-                if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    Toast.makeText(this, "Permission is OK", Toast.LENGTH_LONG).show();
-
-                }
-                else
-                {
-                    Toast.makeText(this, "Can not make a call becouse of no permissions", Toast.LENGTH_LONG).show();
-                }
-            }
             case REQUEST : {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("TAG","@@@ PERMISSIONS grant");
                 } else {
                     Log.d("TAG","@@@ PERMISSIONS Denied");
-                    Toast.makeText(this, "PERMISSIONS Denied", Toast.LENGTH_LONG).show();
+
                 }
             }
 
         }
 
     }
-
-
-
-    private boolean IsSMSPermissionGranted()
-    {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestREadAndSendSmsPermission()
-    {
-        Log.d(LOG_TAG, "In requestREadAndSendSmsPermission")  ;
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS))
-        {
-            // You may display a non-blocking explanation here, read more in the documentation:
-            // https://developer.android.com/training/permissions/requesting.html
-        }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, SMS_PERMISSION_CODE);
-    }
-
-
 
 
 }

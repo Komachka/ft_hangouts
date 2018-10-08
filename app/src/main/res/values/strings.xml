@@ -17,6 +17,12 @@
     <string name="title_activity_settings">Settings</string>
     <string name="call_contact">Call to the contact</string>
     <string name="sms_to_contact">Send SMS</string>
+    <string name="empty_view_sms">No messages from this contact yet</string>
+    <string name="call_to_contact">Call to contact</string>
+    <string name="sendSms">Sent sms to contact</string>
+    <string name="getSms">Read sms from contact</string>
+    <string name="sendButton">Sent</string>
+    <string name="smsInbox">SMS Inbox</string>
 
 
 </resources>

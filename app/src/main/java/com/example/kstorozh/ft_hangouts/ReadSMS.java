@@ -1,16 +1,21 @@
 package com.example.kstorozh.ft_hangouts;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.ParseException;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +26,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -30,6 +37,10 @@ import java.util.ArrayList;
 
 public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
+
+
+    //TODO add toolbar and change colour
+
     public static final String LOG_TAG = ReadSMS.class.getSimpleName();
 
 
@@ -38,6 +49,7 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
     ListView smsListView;
     ArrayAdapter arrayAdapter;
     String telephonNumber;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +74,35 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
         smsListView.setAdapter(arrayAdapter);
         smsListView.setOnItemClickListener((AdapterView.OnItemClickListener) this);
 
-        //refreshSmsInbox();
+
+        changeButtonColor();
+
+
+
 
         getLoaderManager().initLoader(0,null,this);
+    }
+
+    @SuppressLint("ResourceType")
+    private void changeButtonColor() {
+        SharedPreferences sharedPreferences;
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //TODO check why parsing from first time is incorect
+        @SuppressLint("ResourceType") String toolbarColour = sharedPreferences.getString(PrefActivity.SHAR_KEY, getResources().getString(R.color.defTulbar));
+        Log.d(EditActivity.class.getSimpleName(),"colour from shered pref " +  toolbarColour);
+        int color;
+        try {
+            color = Color.parseColor("#" + toolbarColour);
+
+        }
+        catch (Exception e)
+        {
+            Log.d(EditActivity.class.getSimpleName(), "Parsing was faild");
+            color = Color.parseColor(getResources().getString(R.color.defTulbar));
+        }
+        Button button = findViewById(R.id.button_sent);
+        button.setBackgroundColor(color);
     }
 
     private void refreshSmsInbox() {
@@ -111,44 +149,7 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
 
 
 
-/*    private boolean IsSMSPermissionGranted()
-    {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
-    }
 
-    private void requestREadAndSendSmsPermission()
-    {
-        Log.d(LOG_TAG, "In requestREadAndSendSmsPermission")  ;
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS))
-        {
-            // You may display a non-blocking explanation here, read more in the documentation:
-            // https://developer.android.com/training/permissions/requesting.html
-        }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, SMS_PERMISSION_CODE);
-    }*/
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        Log.d(LOG_TAG, "In onRequestPermissionsResult")  ;
-        switch (requestCode)
-        {
-            case MainFTActivity.SMS_PERMISSION_CODE: {
-                if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    refreshSmsInbox();
-            }
-
-                else
-                {
-                    finish();
-                }
-            }
-        }
-
-    }
     public static ReadSMS instance() {
         return inst;
     }
@@ -217,9 +218,18 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
 
     }
 
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         arrayAdapter.clear();
+    }
+
+    public void sentSMS(View view) {
+        EditText et = (EditText) findViewById(R.id.edit_sms);
+        String body = et.getText().toString();
+        Intent smsIntent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", telephonNumber, null));
+        smsIntent.putExtra("sms_body", body);
+        if (smsIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(smsIntent);
+        }
     }
 }
