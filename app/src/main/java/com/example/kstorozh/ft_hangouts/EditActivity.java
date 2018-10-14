@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.kstorozh.ft_hangouts.data.ContactContract;
 import com.example.kstorozh.ft_hangouts.data.ContactDBHealper;
@@ -129,30 +130,26 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         Uri insertUri = null;
         if (currentContactUri == null) {
              insertUri = getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
+            if (insertUri != null)
+                Toast.makeText(this, "You add new contact", Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(this, "Sorry, You can not add contact like this", Toast.LENGTH_LONG).show();
             return true;
         }
         else
         {
 
             int updatedRows = getContentResolver().update(currentContactUri,values,null,null);
+            if (updatedRows != 0)
+                Toast.makeText(this, "You updated contact", Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(this, "Sorry, You can not update contact like this", Toast.LENGTH_LONG).show();
 
 
         }
         return true;
     }
-
-    private String getImagePathToSave() {
-
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        //Log.d(EditActivity.class.getSimpleName(), "!!!!!!!!!!!!!!!!!! storageDir  = "+ storageDir.getAbsolutePath());
-        for (File f: storageDir.listFiles()) {
-            //Log.d(EditActivity.class.getSimpleName(), "path   = "+ f.getAbsolutePath());
-
-        }
-        return mCurrentPhotoPath;
-
-    }
-
+    
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -251,7 +248,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(R.id.action_delete_all_data).setVisible(false);
-        menu.findItem(R.id.action_insert_data).setVisible(false);
         return true;
     }
 

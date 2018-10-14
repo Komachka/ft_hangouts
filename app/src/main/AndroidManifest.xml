@@ -62,7 +62,7 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
 
-        <activity android:name=".ReadSMS"/>
+        <activity android:name=".ReadSMS" android:configChanges="orientation"/>
 
 
         <receiver android:name=".data.SMSResiver" android:exported="true">
