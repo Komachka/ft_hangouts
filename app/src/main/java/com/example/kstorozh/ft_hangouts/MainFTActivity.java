@@ -277,7 +277,8 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                                 ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
 
                             }
-                            startActivity(smsIntent);
+                            if (hasPermissions())
+                                startActivity(smsIntent);
                         }
                         break;
                     }
@@ -288,7 +289,8 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                                 ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
 
                             }
-                            startActivity(telIntent);
+                            if (hasPermissions())
+                                startActivity(telIntent);
                         }
                         break;
                     }
@@ -300,7 +302,9 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                         Intent intent = new Intent(MainFTActivity.this, ReadSMS.class);
                         intent.putExtra("sms_body", "Hello " + fName + " " + sName);
                         intent.putExtra("TELEPHONE", tel);
-                        startActivity(intent);
+                        if (hasPermissions())
+                            startActivity(intent);
+
                         break; }
                 }
             }
