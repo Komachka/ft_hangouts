@@ -47,7 +47,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     private static final int CM_SMS_SEND_ID = 3;
     private static final int CM_SMS_READ_ID = 4;
 
-    String[] PERMISSIONS = {android.Manifest.permission.CAMERA,
+    String[] PERMISSIONS = {
             android.Manifest.permission.READ_SMS,
             Manifest.permission.CALL_PHONE
     };
@@ -113,6 +113,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
         for (String permission : PERMISSIONS) {
             if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                Log.d(LOG_TAG, permission);
                 return false;
             }
         }
@@ -258,9 +259,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             String sName = null;
             String tel = null;
 
-            if (!hasPermissions()) {
-                ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
-            }
+
 
             if (cursor != null && cursor.moveToNext()) {
                 fName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
@@ -273,37 +272,25 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                         Intent smsIntent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", tel, null));
                         smsIntent.putExtra("sms_body", "Hello " + fName + " " + sName);
                         if (smsIntent.resolveActivity(getPackageManager()) != null) {
-                            if (!hasPermissions()) {
-                                ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
 
-                            }
-                            if (hasPermissions())
-                                startActivity(smsIntent);
+                            startActivity(smsIntent);
                         }
                         break;
                     }
                     case (CM_CALL_ID):{
                         Intent telIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + tel));
                         if (telIntent.resolveActivity(getPackageManager()) != null) {
-                            if (!hasPermissions()) {
-                                ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
 
-                            }
-                            if (hasPermissions())
-                                startActivity(telIntent);
+                            startActivity(telIntent);
                         }
                         break;
                     }
                     case (CM_SMS_READ_ID) : {
-                        if (!hasPermissions()) {
-                            ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
 
-                        }
                         Intent intent = new Intent(MainFTActivity.this, ReadSMS.class);
                         intent.putExtra("sms_body", "Hello " + fName + " " + sName);
                         intent.putExtra("TELEPHONE", tel);
-                        if (hasPermissions())
-                            startActivity(intent);
+                        startActivity(intent);
 
                         break; }
                 }
@@ -363,10 +350,14 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         switch (requestCode)
         {
             case REQUEST : {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(LOG_TAG, "!!!!!!!!!!!!" + grantResults[0] + " " + PackageManager.PERMISSION_GRANTED);
+                //Toast.makeText(this, "!!!!!!!!!!!!" + grantResults[1] + " " + PackageManager.PERMISSION_GRANTED, Toast.LENGTH_LONG).show();
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("TAG","@@@ PERMISSIONS grant");
                 } else {
+                    Toast.makeText(this,"@@@ PERMISSIONS Denied", Toast.LENGTH_LONG).show();
                     Log.d("TAG","@@@ PERMISSIONS Denied");
+                    finish();
 
                 }
             }

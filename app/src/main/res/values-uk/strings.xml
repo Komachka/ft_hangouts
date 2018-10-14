@@ -38,4 +38,7 @@
     <string name="choose_image">Зробити фото</string>
 
 
+    <string name="pick">Вибери колір на свій смак</string>
+    <string name="prefer_title">Колір тулбару</string>
+
 </resources>
