@@ -52,7 +52,6 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
 
     //camera
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    List<String> allPhotosWhichWasMadeFromCamera = new ArrayList<>();
     String mCurrentPhotoPath;
 
 
@@ -85,12 +84,11 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         currentContactUri = getIntent().getData();
         if (currentContactUri != null)
         {
-            getSupportActionBar().setTitle("Edit contact");
-            Log.d(EditActivity.class.getSimpleName(), "Edit pet " + currentContactUri.toString());
+            getSupportActionBar().setTitle(R.string.edit_contact_title);
         }
         else
         {
-            getSupportActionBar().setTitle("Add new contact");
+            getSupportActionBar().setTitle(R.string.add_new_contact_title);
         }
         getLoaderManager().initLoader(0,null,this);
 
@@ -131,9 +129,9 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         if (currentContactUri == null) {
              insertUri = getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
             if (insertUri != null)
-                Toast.makeText(this, "You add new contact", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.add_new_conact_toast, Toast.LENGTH_LONG).show();
             else
-                Toast.makeText(this, "Sorry, You can not add contact like this", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.can_not_add_contact_toast, Toast.LENGTH_LONG).show();
             return true;
         }
         else
@@ -141,9 +139,9 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
 
             int updatedRows = getContentResolver().update(currentContactUri,values,null,null);
             if (updatedRows != 0)
-                Toast.makeText(this, "You updated contact", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.update_contact_toast, Toast.LENGTH_LONG).show();
             else
-                Toast.makeText(this, "Sorry, You can not update contact like this", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.cat_not_update_contact_toast, Toast.LENGTH_LONG).show();
 
 
         }
