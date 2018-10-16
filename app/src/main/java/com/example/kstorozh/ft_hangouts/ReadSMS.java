@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ParseException;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -20,8 +21,10 @@ import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -39,16 +42,16 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
 
 
 
-    //TODO add toolbar and change colour
-
     public static final String LOG_TAG = ReadSMS.class.getSimpleName();
-
-
     private static ReadSMS inst;
+
     ArrayList<String> smsMessageList = new ArrayList<String>();
     ListView smsListView;
     ArrayAdapter arrayAdapter;
     String telephonNumber;
+    SharedPreferences sharedPreferences;
+    Toolbar toolbar;
+
 
 
     @Override
@@ -65,8 +68,14 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
             Log.e(LOG_TAG, "Something strange happened");
             finish();
         }
+
+        //toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        //setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(telephonNumber);
+
+
         setContentView(R.layout.activity_read_sms);
-        //smsMessageList.add("");
         smsListView = (ListView) findViewById(R.id.SMSList);
         View emptyView = findViewById(R.id.empty_view_sms);
         smsListView.setEmptyView(emptyView);
@@ -103,32 +112,10 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
         }
         Button button = findViewById(R.id.button_sent);
         button.setBackgroundColor(color);
+        ActionBar toolbar =  getSupportActionBar();
+        toolbar.setBackgroundDrawable(new ColorDrawable(color));
     }
 
-    private void refreshSmsInbox() {
-        Uri uri = Uri.parse("content://sms/inbox");
-        String selection = "address = ?";
-        String[] selectionArgs = null;
-        try {
-            selectionArgs = new String[]{telephonNumber};
-        }
-        catch (ParseException ex)
-        {
-            Log.d(LOG_TAG, "Parse excaption");
-            return;
-        }
-        ContentResolver contentResolver = getContentResolver();
-        Cursor smsInboxCursor = contentResolver.query(uri, null, selection,selectionArgs, null);
-        int indexBody = smsInboxCursor.getColumnIndex("body");
-        int indexAddress = smsInboxCursor.getColumnIndex("address");
-        if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
-        arrayAdapter.clear();
-        do {
-            String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
-                    "\n" + smsInboxCursor.getString(indexBody) + "\n";
-            arrayAdapter.add(str);
-        } while (smsInboxCursor.moveToNext());
-    }
 
     //caled from smsResiver
     public void updateList(final String smsMessage) {
@@ -211,7 +198,6 @@ public class ReadSMS extends AppCompatActivity implements AdapterView.OnItemClic
 
             } while (smsInboxCursor.moveToNext());
 
-            //arrayAdapter.add(smsMessageList);
             arrayAdapter.notifyDataSetChanged();
 
         }

@@ -64,7 +64,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:ems="10"
-            android:hint="Send SMS for this contact"
+            android:hint="@string/send_sms_hint"
             android:inputType="textEmailSubject"
             android:layout_weight="1"/>
         <Button

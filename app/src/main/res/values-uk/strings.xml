@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">ft_hangouts</string>
+    <string name="title_activity_main_ft">ft_hangouts</string>
+
+
+    <!-- menu-->
+    <string name="add_item">Додати новий контакт</string>
+    <string name="dell_all">Видалити всі контакти</string>
+    <string name="title_activity_edit">Редагування</string>
+    <string name="save">Зберегти</string>
+    <string name="add_record">Додати новий контакт</string>
+    <string name="delete_record">Видалити контакт</string>
+    <string name="empty_view_title_text">Самотньо тут...</string>
+    <string name="empty_view_subtitle_text">Додамо когось до контактів?</string>
+    <string name="preference_file_key">com.example.kstorozh.ft_hangouts.PREFERENCE_FILE_KEY</string>
+    <string name="options">Опції</string>
+    <string name="title_activity_settings">Налаштування</string>
+    <string name="call_contact">Подзвонити</string>
+    <string name="sms_to_contact">Відправити смс</string>
+    <string name="empty_view_sms">Поки що від цього контакту немає смс</string>
+    <string name="call_to_contact">Подзвонити</string>
+    <string name="sendSms">Відправити смс</string>
+    <string name="getSms">Повідомлення від контакта</string>
+    <string name="sendButton">Відправити</string>
+    <string name="smsInbox">Вхідні</string>
+    <string name="send_sms_hint">Відправити смс</string>
+    <string name="edit_contact_title">Редагувати</string>
+    <string name="add_new_contact_title">Додати контакт</string>
+    <string name="add_new_conact_toast">Ви додали контакт</string>
+    <string name="can_not_add_contact_toast">У вас не вийшло додати контакт</string>
+    <string name="update_contact_toast">Ви оновили контакт</string>
+    <string name="cat_not_update_contact_toast">У вас не вийшло оновити контакт</string>
+    <string name="are_u_shure">Впевнені?</string>
+    <string name="yes">Так!!!</string>
+    <string name="no">Неа</string>
+    <string name="first_name">Імя</string>
+    <string name="second_name">Прізвище</string>
+    <string name="choose_image">Зробити фото</string>
+
+
+    <string name="pick">Вибери колір на свій смак</string>
+    <string name="prefer_title">Колір тулбару</string>
+
+</resources>

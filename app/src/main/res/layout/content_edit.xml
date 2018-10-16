@@ -28,7 +28,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="28dp"
             android:ems="10"
-            android:hint="First Name"
+            android:hint="@string/first_name"
             android:inputType="textPersonName"
             android:shadowColor="@android:color/white"
             android:textColor="@android:color/white"
@@ -46,7 +46,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:ems="10"
-            android:hint="Second Name"
+            android:hint="@string/second_name"
             android:inputType="textPersonName"
             android:shadowColor="@android:color/white"
             android:textColor="@android:color/white"
@@ -83,14 +83,15 @@
             android:background="@drawable/layout_round_corner_button"
             android:onClick="chooseImage"
             android:padding="2sp"
-            android:text="Choose Image"
+            android:text="@string/choose_image"
             android:textAllCaps="true"
             android:textColor="@color/buttonColour"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@+id/brouse_image"
             app:layout_constraintTop_toBottomOf="@+id/brouse_image"
-            tools:ignore="OnClick" />
+            tools:ignore="OnClick"
+            android:layout_marginRight="8dp" />
 
         <ImageView
             android:id="@+id/brouse_image"
@@ -98,7 +99,7 @@
             android:layout_height="100dp"
             android:layout_marginTop="8dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_foreground"
+            app:srcCompat="@drawable/ic_launcher_foreground"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

@@ -23,6 +23,21 @@
     <string name="getSms">Read sms from contact</string>
     <string name="sendButton">Sent</string>
     <string name="smsInbox">SMS Inbox</string>
+    <string name="send_sms_hint">Send SMS for this contact</string>
+    <string name="edit_contact_title">Edit contact</string>
+    <string name="add_new_contact_title">Add new contact</string>
+    <string name="add_new_conact_toast">You add new contact</string>
+    <string name="can_not_add_contact_toast">Sorry, You can not add contact like this</string>
+    <string name="update_contact_toast">You updated contact</string>
+    <string name="cat_not_update_contact_toast">Sorry, You can not update contact like this</string>
+    <string name="are_u_shure">Are you shure?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="first_name">First Name</string>
+    <string name="second_name">Second Name</string>
+    <string name="choose_image">Choose Image</string>
+    <string name="pick">Pick your favourite color</string>
+    <string name="prefer_title">Choose colour for toolbar</string>
 
 
 </resources>

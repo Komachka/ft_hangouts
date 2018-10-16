@@ -47,7 +47,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
     private static final int CM_SMS_SEND_ID = 3;
     private static final int CM_SMS_READ_ID = 4;
 
-    String[] PERMISSIONS = {android.Manifest.permission.CAMERA,
+    String[] PERMISSIONS = {
             android.Manifest.permission.READ_SMS,
             Manifest.permission.CALL_PHONE
     };
@@ -105,6 +105,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             }
         });
         registerForContextMenu(myListView);
+        insertContact();
 
     }
 
@@ -112,6 +113,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
         for (String permission : PERMISSIONS) {
             if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                Log.d(LOG_TAG, permission);
                 return false;
             }
         }
@@ -143,6 +145,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         }
         toolbar.setBackgroundColor(color);
 
+
     }
 
 
@@ -152,9 +155,10 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
 
 // Create a new map of values, where column names are the keys
+        Log.d(LOG_TAG, "insert contact");
         String first_name = "Katya";
         String second_name = "Sorozh";
-        int telephone_number = 5555555;
+        String telephone_number = "free.sms.ks";
 
         ContentValues values = new ContentValues();
         values.put(ContactContract.ContactEntry.FIRST_NAME, first_name);
@@ -162,7 +166,10 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         values.put(ContactContract.ContactEntry.TELEPHONE_NUMBER, telephone_number);
         values.put(ContactContract.ContactEntry.ICON_PATH, "");
 
-        getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
+        Uri uri = getContentResolver().insert(ContactContract.ContactEntry.CONTENT_URI, values);
+        if (uri != null)
+            Log.d(LOG_TAG, "insert contact " + uri.toString());
+
         return true;
     }
 
@@ -179,9 +186,6 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         int _id = item.getItemId();
 
         switch (_id) {
-            case R.id.action_insert_data:
-                insertContact();
-                return true;
             case R.id.action_delete_all_data:
                 deliteAll();
                 return true;
@@ -194,15 +198,15 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
 
     private void deliteAll() {
         AlertDialog.Builder builder= new AlertDialog.Builder(this);
-        builder.setMessage("Are you shure?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.are_u_shure)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         int howMuchWasRemuved = getContentResolver().delete(ContactContract.ContactEntry.CONTENT_URI, null, null);
 
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -256,6 +260,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
             String tel = null;
 
 
+
             if (cursor != null && cursor.moveToNext()) {
                 fName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.FIRST_NAME));
                 sName = cursor.getString(cursor.getColumnIndex(ContactContract.ContactEntry.SECOND_NAME));
@@ -267,6 +272,7 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                         Intent smsIntent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", tel, null));
                         smsIntent.putExtra("sms_body", "Hello " + fName + " " + sName);
                         if (smsIntent.resolveActivity(getPackageManager()) != null) {
+
                             startActivity(smsIntent);
                         }
                         break;
@@ -274,15 +280,18 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
                     case (CM_CALL_ID):{
                         Intent telIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + tel));
                         if (telIntent.resolveActivity(getPackageManager()) != null) {
+
                             startActivity(telIntent);
                         }
                         break;
                     }
                     case (CM_SMS_READ_ID) : {
+
                         Intent intent = new Intent(MainFTActivity.this, ReadSMS.class);
                         intent.putExtra("sms_body", "Hello " + fName + " " + sName);
                         intent.putExtra("TELEPHONE", tel);
                         startActivity(intent);
+
                         break; }
                 }
             }
@@ -341,10 +350,14 @@ public class MainFTActivity extends AppCompatActivity implements LoaderManager.L
         switch (requestCode)
         {
             case REQUEST : {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(LOG_TAG, "!!!!!!!!!!!!" + grantResults[0] + " " + PackageManager.PERMISSION_GRANTED);
+                //Toast.makeText(this, "!!!!!!!!!!!!" + grantResults[1] + " " + PackageManager.PERMISSION_GRANTED, Toast.LENGTH_LONG).show();
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("TAG","@@@ PERMISSIONS grant");
                 } else {
+                    Toast.makeText(this,"@@@ PERMISSIONS Denied", Toast.LENGTH_LONG).show();
                     Log.d("TAG","@@@ PERMISSIONS Denied");
+                    finish();
 
                 }
             }
